@@ -11,8 +11,9 @@
         android:label="fragment_calendar_month_screen"
         tools:layout="@layout/fragment_calendar_month_screen" />
     <fragment
-        android:id="@+id/detailTaskScreenFragment"
-        android:name="com.kassaev.planner.screen.DetailTaskScreenFragment"
-        android:label="fragment_detail_task_screen"
-        tools:layout="@layout/fragment_detail_task_screen" />
+        android:id="@+id/taskDetailScreenFragment"
+        android:name="com.kassaev.planner.screen.TaskDetailScreenFragment"
+        android:label="fragment_task_detail_screen"
+        tools:layout="@layout/fragment_task_detail_screen" />
+
 </navigation>
