@@ -5,8 +5,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController
+import androidx.fragment.app.commit
 import com.kassaev.planner.R
+import com.kassaev.planner.component.CalendarMonthComponentFragment
+import com.kassaev.planner.component.TaskRvComponentFragment
 import com.kassaev.planner.databinding.FragmentCalendarMonthScreenBinding
 
 class CalendarMonthScreenFragment : Fragment() {
@@ -23,6 +25,11 @@ class CalendarMonthScreenFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        findNavController().navigate(R.id.taskDetailScreenFragment)
+
+        childFragmentManager.commit {
+            replace(R.id.calendarContainer, CalendarMonthComponentFragment())
+            replace(R.id.taskRvContainer, TaskRvComponentFragment())
+        }
+
     }
 }
