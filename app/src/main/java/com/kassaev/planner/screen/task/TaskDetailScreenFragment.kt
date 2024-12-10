@@ -1,4 +1,4 @@
-package com.kassaev.planner.screen
+package com.kassaev.planner.screen.task
 
 import android.os.Bundle
 import android.view.LayoutInflater

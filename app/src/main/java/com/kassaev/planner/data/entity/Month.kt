@@ -1,7 +1,11 @@
 package com.kassaev.planner.data.entity
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+@Entity
 data class Month(
-    val previousMonthLastWeekDateList: List<String>,
-    val currentMonthDateList: List<String>,
-    val followingMonthFirstWeekDateList: List<String>,
+    @PrimaryKey
+    val firstDay: String,
+    val data: String
 )
