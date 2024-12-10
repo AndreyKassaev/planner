@@ -1,4 +1,4 @@
-package com.kassaev.planner.screen
+package com.kassaev.planner.screen.calendar
 
 import android.os.Bundle
 import android.view.LayoutInflater

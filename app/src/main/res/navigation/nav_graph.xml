@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/calendarMonthScreenFragment"
-        android:name="com.kassaev.planner.screen.CalendarMonthScreenFragment"
+        android:name="com.kassaev.planner.screen.calendar.CalendarMonthScreenFragment"
         android:label="fragment_calendar_month_screen"
         tools:layout="@layout/fragment_calendar_month_screen" />
     <fragment
