@@ -74,4 +74,6 @@ dependencies {
     // https://mvnrepository.com/artifact/io.insert-koin/koin-android
     implementation(libs.koin.android)
 
+    // https://mvnrepository.com/artifact/androidx.viewpager2/viewpager2
+    implementation(libs.androidx.viewpager2)
 }
