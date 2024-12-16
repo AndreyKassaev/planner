@@ -4,21 +4,35 @@ import com.kassaev.planner.data.dao.MonthDao
 import com.kassaev.planner.util.MonthGenerator
 import com.kassaev.planner.util.MonthMapper.entityListToModelList
 import com.kassaev.planner.util.MonthMapper.modelToEntity
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import java.util.Calendar
+import java.util.Locale
 
 class CalendarRepositoryImpl(
     private val monthDao: MonthDao
 ) : CalendarRepository {
 
-    override suspend fun initDb() {
+    val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
-        val calendar = Calendar.getInstance()
-        calendar.add(Calendar.MONTH, -1)
-        insertMonth(
-            month = calendar.time.month,
-            year = calendar.time.year
-        )
+    init {
+        scope.launch {
+            initDb()
+        }
+    }
+
+    override suspend fun initDb() {
+        (-1..3).forEach { offset ->
+            val calendar = Calendar.getInstance(Locale("ru"))
+            calendar.add(Calendar.MONTH, offset)
+            insertMonth(
+                month = calendar.get(Calendar.MONTH),
+                year = calendar.get(Calendar.YEAR)
+            )
+        }
     }
 
     override fun getMonthListFlow() =

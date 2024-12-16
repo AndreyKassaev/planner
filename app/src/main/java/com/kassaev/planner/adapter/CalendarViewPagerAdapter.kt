@@ -1,9 +1,18 @@
 package com.kassaev.planner.adapter
 
+import android.content.Context
+import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.TextView
+import androidx.core.content.ContextCompat.getString
 import androidx.recyclerview.widget.RecyclerView
+import com.kassaev.planner.R
 import com.kassaev.planner.databinding.FragmentCalendarMonthComponentBinding
+import com.kassaev.planner.model.CalendarDate
 import com.kassaev.planner.model.Month
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class CalendarViewPagerAdapter(
     private val items: List<Month>
@@ -13,39 +22,92 @@ class CalendarViewPagerAdapter(
         val binding: FragmentCalendarMonthComponentBinding
     ) : RecyclerView.ViewHolder(binding.root) {
         fun bind(month: Month) {
+            binding.calendarGridCellContainer.removeAllViews()
+            binding.calendarYear.text = getYear(month)
+            binding.calendarMonth.text = getString(binding.root.context, getMonthResourceId(month))
+            println("PREV: ${month.previousMonthLastWeekDateList.first().date} ${month.previousMonthLastWeekDateList.size}")
+            println("CURR: ${month.currentMonthDateList.first().date} ${month.currentMonthDateList.size}")
+            println("FOLL: ${month.followingMonthFirstWeekDateList.first().date} ${month.followingMonthFirstWeekDateList.size}")
             month.previousMonthLastWeekDateList.forEach { date ->
-//                binding.calendarGridCellContainer.addView(
-//                    getCalendarDateTextView(date)
-//                )
+                binding.calendarGridCellContainer.addView(
+                    getCalendarDateTextView(date = date, context = binding.root.context)
+                )
+            }
+            month.currentMonthDateList.forEach { date ->
+                binding.calendarGridCellContainer.addView(
+                    getCalendarDateTextView(
+                        date = date,
+                        isCurrent = true,
+                        context = binding.root.context
+                    )
+                )
+            }
+            month.followingMonthFirstWeekDateList.forEach { date ->
+                binding.calendarGridCellContainer.addView(
+                    getCalendarDateTextView(date = date, context = binding.root.context)
+                )
             }
         }
     }
 
+    private fun getMonthResourceId(month: Month) =
+        when (month.currentMonthDateList.first().date.split("-")[1].toInt()) {
+            1 -> R.string.january
+            2 -> R.string.february
+            3 -> R.string.march
+            4 -> R.string.april
+            5 -> R.string.may
+            6 -> R.string.june
+            7 -> R.string.july
+            8 -> R.string.august
+            9 -> R.string.september
+            10 -> R.string.october
+            11 -> R.string.november
+            12 -> R.string.december
+            else -> R.string.unknown
+        }
+
+
+    private fun getYear(month: Month) =
+        month.currentMonthDateList.first().date.split("-").first()
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        TODO("Not yet implemented")
+        val binding = FragmentCalendarMonthComponentBinding.inflate(
+            LayoutInflater.from(parent.context),
+            parent,
+            false
+        )
+        return ViewHolder(binding)
     }
 
-    override fun getItemCount(): Int {
-        TODO("Not yet implemented")
-    }
+    override fun getItemCount(): Int = items.size
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        TODO("Not yet implemented")
+        holder.bind(items[position])
     }
 
-//    private fun getCalendarDateTextView(date: Date, isCurrent: Boolean = false): TextView {
+    private fun getCalendarDateTextView(
+        date: CalendarDate,
+        isCurrent: Boolean = false,
+        context: Context
+    ): TextView {
 //        val currentDate = Calendar.getInstance().time
-//        val textView = TextView(requireContext())
-//        textView.setPadding(32, 32, 32, 32)
-//        textView.textSize = 24F
-//        textView.alpha = if(isCurrent) 1F else 0.25F
-//        textView.text = date.date.toString()
+        val textView = TextView(context)
+        textView.setPadding(32, 32, 32, 32)
+        textView.textSize = 24F
+        textView.alpha = if (isCurrent) 1F else 0.25F
+        textView.text = getDay(date)
+        textView.setOnClickListener {
+            println(date.date)
+        }
 //        if (formatDateWithoutTime(date) == formatDateWithoutTime(currentDate)) textView.setTextColor(
-//            ContextCompat.getColor(requireContext(), R.color.calendar))
-//        return textView
-//    }
-//
-//    private fun formatDateWithoutTime(date: Date) =
-//        SimpleDateFormat("dd-MM-yyyy", Locale("ru")).format(date)
+//            ContextCompat.getColor(context, R.color.calendar))
+        return textView
+    }
+
+    private fun getDay(date: CalendarDate) = date.date.split("-").last().toInt().toString()
+
+    private fun formatDateWithoutTime(date: Date) =
+        SimpleDateFormat("dd-MM-yyyy", Locale("ru")).format(date)
 
 }

@@ -34,10 +34,6 @@ class TaskRvComponentFragment : Fragment() {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = TaskAdapter(MockSchedule.getTaskRvList())
         }
-        MockSchedule.getTaskRvList()
-            .forEach { hour ->
-                println("${hour.hour} - ${hour.taskList.size}")
-            }
     }
 }
 

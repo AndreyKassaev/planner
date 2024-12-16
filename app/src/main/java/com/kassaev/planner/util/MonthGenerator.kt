@@ -48,8 +48,6 @@ object MonthGenerator {
     //UI
     private fun formatDateWithoutTime(date: Date): String {
         val result = SimpleDateFormat("yyyy-MM-dd", Locale("ru")).format(date)
-        println("date: $date, result: $result")
-
         return result
     }
 
@@ -72,7 +70,10 @@ object MonthGenerator {
                 currentMonth = month,
                 year = year
             ),
-            currentMonthDateList = getCurrentMonthDateList(currentMonth = month, year = year),
+            currentMonthDateList = getCurrentMonthDateList(
+                currentMonth = month,
+                year = year
+            ),
             followingMonthFirstWeekDateList = getFollowingMonthFirstWeekDateList(
                 currentMonth = month,
                 year = year
@@ -100,7 +101,6 @@ object MonthGenerator {
         currentMonth: Int,
         year: Int
     ): List<CalendarDate> {
-
         val calendar = Calendar.getInstance(Locale("ru"))
         calendar.apply {
             set(Calendar.YEAR, year)
@@ -110,7 +110,6 @@ object MonthGenerator {
 
         val currentWeek = calendar.get(Calendar.WEEK_OF_MONTH)
         val firstWeekDayList = mutableListOf<CalendarDate>()
-
         for (i in 1..7) {
             if (calendar.get(Calendar.WEEK_OF_MONTH) != currentWeek) {
                 break
@@ -128,7 +127,6 @@ object MonthGenerator {
     }
 
     private fun getCurrentMonthDateList(currentMonth: Int, year: Int): List<CalendarDate> {
-
         val calendar = Calendar.getInstance(Locale("ru"))
         calendar.apply {
             set(Calendar.YEAR, year)
@@ -137,7 +135,6 @@ object MonthGenerator {
         }
 
         val currentMontDateList = mutableListOf<CalendarDate>()
-
         repeat(calendar.getActualMaximum(Calendar.DAY_OF_MONTH)) {
             currentMontDateList.add(
                 CalendarDate(
@@ -152,7 +149,6 @@ object MonthGenerator {
     }
 
     private fun getPreviousMonthLastWeekDateList(currentMonth: Int, year: Int): List<CalendarDate> {
-
         val calendar = Calendar.getInstance(Locale("ru"))
         val previousMonth = if (currentMonth == 0) 11 else currentMonth - 1
         val yearVal = if (currentMonth == 0) year - 1 else year
