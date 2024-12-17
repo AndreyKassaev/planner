@@ -2,12 +2,15 @@ package com.kassaev.planner.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -27,6 +30,7 @@ import com.kassaev.planner.model.Month
 import com.kassaev.planner.util.getDay
 import com.kassaev.planner.util.getMonthResourceId
 import com.kassaev.planner.util.getYear
+import com.kassaev.planner.util.isToday
 
 class CalendarViewPagerAdapter(
     private val items: List<Month>
@@ -97,7 +101,17 @@ fun GridItem(
         modifier = Modifier
             .padding(8.dp)
             .alpha(if (isCurrent) 1F else 0.5F)
-            .background(color = if (isCurrent) backgroundColor else Color.Transparent),
+            .background(color = if (isCurrent) backgroundColor else Color.Transparent)
+            .then(
+                if (isToday(date)) {
+                    Modifier.border(
+                        BorderStroke(2.dp, Color.Blue),
+                        shape = RoundedCornerShape(4.dp)
+                    )
+                } else {
+                    Modifier
+                }
+            ),
         text = getDay(date),
         fontSize = 24.sp,
         textAlign = TextAlign.Center

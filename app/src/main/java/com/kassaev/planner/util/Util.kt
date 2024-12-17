@@ -34,6 +34,12 @@ fun getCalendarDateTextView(
     return textView
 }
 
+fun isToday(date: CalendarDate): Boolean =
+    formatDateWithoutTime(SimpleDateFormat("yyyy-MM-dd").parse(date.date)) == formatDateWithoutTime(
+        Calendar.getInstance().time
+    )
+
+
 fun getDay(date: CalendarDate) = date.date.split("-").last().toInt().toString()
 
 fun formatDateWithoutTime(date: Date) =
