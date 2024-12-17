@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -44,6 +45,7 @@ class CalendarViewPagerAdapter(
             binding.calendarMonth.text = getString(binding.root.context, getMonthResourceId(month))
             binding.composeView.setContent {
                 val indexOffset = month.previousMonthLastWeekDateList.size
+
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(7),
                     modifier = Modifier.fillMaxSize(),
@@ -51,7 +53,7 @@ class CalendarViewPagerAdapter(
                 ) {
                     month.previousMonthLastWeekDateList.forEachIndexed { index, date ->
                         item {
-                            GridItem(index = index, date = date)
+                            GridItem(index = index, date = date, selectedDate =)
                         }
                     }
                     month.currentMonthDateList.forEachIndexed { index, date ->
@@ -89,7 +91,9 @@ class CalendarViewPagerAdapter(
 fun GridItem(
     index: Int,
     date: CalendarDate,
-    isCurrent: Boolean = false
+    selectedDate: CalendarDate,
+    setSelectedDate: (CalendarDate) -> Unit,
+    isCurrent: Boolean = false,
 ) {
     val context = LocalContext.current
     val columnIndex = index % 7
@@ -101,7 +105,7 @@ fun GridItem(
         modifier = Modifier
             .padding(8.dp)
             .alpha(if (isCurrent) 1F else 0.5F)
-            .background(color = if (isCurrent) backgroundColor else Color.Transparent)
+            .background(color = if (isCurrent) backgroundColor else if (selectedDate == date) Color.Gray else Color.Transparent)
             .then(
                 if (isToday(date)) {
                     Modifier.border(
@@ -111,7 +115,10 @@ fun GridItem(
                 } else {
                     Modifier
                 }
-            ),
+            )
+            .clickable {
+                setSelectedDate(date)
+            },
         text = getDay(date),
         fontSize = 24.sp,
         textAlign = TextAlign.Center
