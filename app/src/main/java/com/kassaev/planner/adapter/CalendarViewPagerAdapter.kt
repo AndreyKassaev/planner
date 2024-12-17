@@ -4,6 +4,7 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.getString
 import androidx.recyclerview.widget.RecyclerView
 import com.kassaev.planner.R
@@ -11,6 +12,7 @@ import com.kassaev.planner.databinding.FragmentCalendarMonthComponentBinding
 import com.kassaev.planner.model.CalendarDate
 import com.kassaev.planner.model.Month
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
@@ -25,9 +27,6 @@ class CalendarViewPagerAdapter(
             binding.calendarGridCellContainer.removeAllViews()
             binding.calendarYear.text = getYear(month)
             binding.calendarMonth.text = getString(binding.root.context, getMonthResourceId(month))
-            println("PREV: ${month.previousMonthLastWeekDateList.first().date} ${month.previousMonthLastWeekDateList.size}")
-            println("CURR: ${month.currentMonthDateList.first().date} ${month.currentMonthDateList.size}")
-            println("FOLL: ${month.followingMonthFirstWeekDateList.first().date} ${month.followingMonthFirstWeekDateList.size}")
             month.previousMonthLastWeekDateList.forEach { date ->
                 binding.calendarGridCellContainer.addView(
                     getCalendarDateTextView(date = date, context = binding.root.context)
@@ -91,7 +90,7 @@ class CalendarViewPagerAdapter(
         isCurrent: Boolean = false,
         context: Context
     ): TextView {
-//        val currentDate = Calendar.getInstance().time
+        val currentDate = Calendar.getInstance().time
         val textView = TextView(context)
         textView.setPadding(32, 32, 32, 32)
         textView.textSize = 24F
@@ -100,8 +99,12 @@ class CalendarViewPagerAdapter(
         textView.setOnClickListener {
             println(date.date)
         }
-//        if (formatDateWithoutTime(date) == formatDateWithoutTime(currentDate)) textView.setTextColor(
-//            ContextCompat.getColor(context, R.color.calendar))
+        if (formatDateWithoutTime(SimpleDateFormat("yyyy-MM-dd").parse(date.date)) == formatDateWithoutTime(
+                currentDate
+            )
+        ) textView.setTextColor(
+            ContextCompat.getColor(context, R.color.calendar)
+        )
         return textView
     }
 
