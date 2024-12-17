@@ -29,12 +29,9 @@ class CalendarViewModel(
         val calendar = Calendar.getInstance()
         calendar.set(Calendar.DAY_OF_MONTH, 1)
         val currentMonthFirstDay = formatDateWithoutTime(calendar.time)
-        println("currentMonthFirstDay: $currentMonthFirstDay")
         viewModelScope.launch {
-            val result = calendarRepository.getMonthRowNumber(monthFirstDay = currentMonthFirstDay)
-            println("OFFSET: $result")
             currentMonthRowNumberFlowMutable.update {
-                result
+                calendarRepository.getMonthRowNumber(monthFirstDay = currentMonthFirstDay)
             }
         }
     }
