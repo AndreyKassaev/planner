@@ -6,9 +6,14 @@
     android:orientation="vertical"
     tools:context=".screen.calendar.CalendarMonthComponentContainerFragment">
 
-    <androidx.viewpager2.widget.ViewPager2
+    <androidx.compose.ui.platform.ComposeView
         android:id="@+id/calendarViewPager"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="match_parent" />
+
+    <!--    <androidx.viewpager2.widget.ViewPager2-->
+    <!--        android:id="@+id/calendarViewPager"-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="wrap_content" />-->
 
 </LinearLayout>
