@@ -43,7 +43,7 @@ fun isToday(date: CalendarDate): Boolean =
 fun getDay(date: CalendarDate) = date.date.split("-").last().toInt().toString()
 
 fun formatDateWithoutTime(date: Date) =
-    SimpleDateFormat("dd-MM-yyyy", Locale("ru")).format(date)
+    SimpleDateFormat("yyyy-MM-dd", Locale("ru")).format(date)
 
 fun getMonthResourceId(month: Month) =
     when (month.currentMonthDateList.first().date.split("-")[1].toInt()) {

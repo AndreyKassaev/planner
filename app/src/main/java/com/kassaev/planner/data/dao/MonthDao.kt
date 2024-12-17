@@ -23,4 +23,8 @@ interface MonthDao {
     @Transaction
     @Update
     suspend fun updateMonth(month: Month)
+
+    @Transaction
+    @Query("SELECT COUNT(*) AS row_num FROM month WHERE firstDay <= :monthFirstDay")
+    suspend fun getMonthRowNumber(monthFirstDay: String): Int
 }

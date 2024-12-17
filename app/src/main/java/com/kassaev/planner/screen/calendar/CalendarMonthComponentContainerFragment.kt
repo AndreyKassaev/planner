@@ -49,8 +49,10 @@ class CalendarMonthComponentContainerFragment : Fragment() {
                         monthList.size
                     })
                     val scope = rememberCoroutineScope()
-                    LaunchedEffect(false) {
-                        pagerState.scrollToPage(1) //TODO get from Room
+                    LaunchedEffect(viewModel.getMonthRowNumberFlow()) {
+                        viewModel.getMonthRowNumberFlow().collect { row_number ->
+                            pagerState.scrollToPage(row_number - 1)
+                        }
                     }
                     HorizontalPager(
                         state = pagerState

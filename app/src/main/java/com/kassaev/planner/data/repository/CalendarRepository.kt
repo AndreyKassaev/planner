@@ -8,4 +8,6 @@ interface CalendarRepository {
     suspend fun initDb()
 
     fun getMonthListFlow(): Flow<List<Month>>
+
+    suspend fun getMonthRowNumber(monthFirstDay: String): Int
 }

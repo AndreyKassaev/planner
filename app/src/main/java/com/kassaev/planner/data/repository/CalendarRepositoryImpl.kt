@@ -48,4 +48,7 @@ class CalendarRepositoryImpl(
             )
         )
     }
+
+    override suspend fun getMonthRowNumber(monthFirstDay: String): Int =
+        monthDao.getMonthRowNumber(monthFirstDay)
 }
