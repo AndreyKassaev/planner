@@ -4,6 +4,16 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.material3.Text
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.getString
 import androidx.recyclerview.widget.RecyclerView
@@ -24,27 +34,46 @@ class CalendarViewPagerAdapter(
         val binding: FragmentCalendarMonthComponentBinding
     ) : RecyclerView.ViewHolder(binding.root) {
         fun bind(month: Month) {
-            binding.calendarGridCellContainer.removeAllViews()
             binding.calendarYear.text = getYear(month)
             binding.calendarMonth.text = getString(binding.root.context, getMonthResourceId(month))
-            month.previousMonthLastWeekDateList.forEach { date ->
-                binding.calendarGridCellContainer.addView(
-                    getCalendarDateTextView(date = date, context = binding.root.context)
-                )
-            }
-            month.currentMonthDateList.forEach { date ->
-                binding.calendarGridCellContainer.addView(
-                    getCalendarDateTextView(
-                        date = date,
-                        isCurrent = true,
-                        context = binding.root.context
-                    )
-                )
-            }
-            month.followingMonthFirstWeekDateList.forEach { date ->
-                binding.calendarGridCellContainer.addView(
-                    getCalendarDateTextView(date = date, context = binding.root.context)
-                )
+            binding.composeView.setContent {
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(7), // 7 columns
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(16.dp)
+                ) {
+                    month.previousMonthLastWeekDateList.forEach { date ->
+                        item {
+                            Text(
+                                modifier = Modifier
+                                    .padding(8.dp)
+                                    .alpha(0.5F),
+                                text = getDay(date),
+                                fontSize = 24.sp,
+                            )
+                        }
+                    }
+                    month.currentMonthDateList.forEach { date ->
+                        item {
+                            Text(
+                                modifier = Modifier.padding(8.dp),
+                                text = getDay(date),
+                                fontSize = 24.sp,
+                            )
+                        }
+                    }
+                    month.followingMonthFirstWeekDateList.forEach { date ->
+                        item {
+                            Text(
+                                modifier = Modifier
+                                    .padding(8.dp)
+                                    .alpha(0.5F),
+                                text = getDay(date),
+                                fontSize = 24.sp,
+                            )
+                        }
+                    }
+                }
             }
         }
     }
