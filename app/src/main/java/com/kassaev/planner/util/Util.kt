@@ -40,3 +40,35 @@ fun getYear(month: Month) =
 
 fun getCurrentDay(): String =
     Calendar.getInstance().get(Calendar.DAY_OF_MONTH).toString()
+
+fun getDayStartFinishTimestampPair(dateString: String): Pair<Long, Long>? {
+
+    val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+
+    return try {
+        val date = dateFormat.parse(dateString) ?: return null
+        val calendar = Calendar.getInstance()
+        calendar.time = date
+
+        calendar.apply {
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+        val startOfDay = calendar.timeInMillis
+
+        calendar.apply {
+            set(Calendar.HOUR_OF_DAY, 23)
+            set(Calendar.MINUTE, 59)
+            set(Calendar.SECOND, 59)
+            set(Calendar.MILLISECOND, 999)
+        }
+        val endOfDay = calendar.timeInMillis
+
+        Pair(startOfDay, endOfDay)
+    } catch (e: Exception) {
+        null
+    }
+}
+

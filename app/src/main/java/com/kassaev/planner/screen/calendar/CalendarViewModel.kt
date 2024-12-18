@@ -5,8 +5,10 @@ import androidx.lifecycle.viewModelScope
 import com.kassaev.planner.data.entity.Task
 import com.kassaev.planner.data.repository.CalendarRepository
 import com.kassaev.planner.util.formatDateWithoutTime
+import com.kassaev.planner.util.getDayStartFinishTimestampPair
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.Calendar
@@ -31,6 +33,9 @@ class CalendarViewModel(
     fun getSelectedDateFlow() = selectedDateFlow
 
     fun setSelectedDate(date: String?) {
+        date?.let {
+            setTaskListFlow(it)
+        }
         viewModelScope.launch {
             selectedDateFlowMutable.update {
                 date
@@ -38,8 +43,29 @@ class CalendarViewModel(
         }
     }
 
-    fun getMonthTaskFlow(dateStart: Long, dateFinish: Long) =
-        calendarRepository.getMonthTaskFlow(dateStart = dateStart, dateFinish = dateFinish)
+    fun setTaskListFlow(date: String) {
+        val startFinishPair = getDayStartFinishTimestampPair(dateString = date)
+        startFinishPair?.let { timestampPair ->
+            viewModelScope.launch {
+                calendarRepository.getMonthTaskFlow(
+                    dateStart = timestampPair.first,
+                    dateFinish = timestampPair.second
+                ).collectLatest { taskList ->
+                    taskListFlowMutable.update {
+                        taskList
+                    }
+                }
+            }
+        }
+    }
+
+//    fun getMonthTaskFlow(): Flow<List<Task>> {
+//        //TODO val firstDayOfMonthTimestampPair = getDayStartFinishTimestampPair(monthList[currentMonthIndex].currentMonthDateList.first())
+//        return calendarRepository.getMonthTaskFlow(
+//            dateStart = firstDayOfMonthTimestampPair.first,
+//            dateFinish = firstDayOfMonthTimestampPair.second
+//        )
+//    }
 
     fun getCurrentMonthIndexFlow() = currentMonthIndexFlow
 
