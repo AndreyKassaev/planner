@@ -2,6 +2,10 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     id("androidx.navigation.safeargs.kotlin")
+    kotlin("plugin.serialization") version "2.1.0"
+    id("com.google.devtools.ksp")
+    id("androidx.room")
+    alias(libs.plugins.compose.compiler)
 }
 
 android {
@@ -37,6 +41,9 @@ android {
     buildFeatures {
         viewBinding = true
     }
+    room {
+        schemaDirectory("$projectDir/schemas")
+    }
 }
 
 dependencies {
@@ -46,9 +53,42 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
+
+    //Navigation
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
+
+    //Test
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
+    //Serialization
+    implementation(libs.kotlinx.serialization.json)
+
+    //Room
+    implementation(libs.androidx.room.runtime)
+    ksp(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.ktx)
+
+    //Koin DI
+    // https://mvnrepository.com/artifact/io.insert-koin/koin-android
+    implementation(libs.koin.android)
+
+    // https://mvnrepository.com/artifact/androidx.viewpager2/viewpager2
+    implementation(libs.androidx.viewpager2)
+
+
+    //Compose
+    // https://mvnrepository.com/artifact/androidx.compose.ui/ui
+    implementation(libs.androidx.ui)
+    // https://mvnrepository.com/artifact/androidx.compose.ui/ui-tooling-preview
+    implementation(libs.androidx.ui.tooling.preview)
+    // https://mvnrepository.com/artifact/androidx.compose.material3/material3
+    implementation(libs.androidx.material3)
+    // https://mvnrepository.com/artifact/androidx.activity/activity-compose
+    implementation(libs.androidx.activity.compose)
+
+
+
 }

@@ -1,4 +1,4 @@
-package com.kassaev.planner.screen
+package com.kassaev.planner.screen.calendar
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import com.kassaev.planner.R
-import com.kassaev.planner.component.CalendarMonthComponentFragment
 import com.kassaev.planner.component.TaskRvComponentFragment
 import com.kassaev.planner.databinding.FragmentCalendarMonthScreenBinding
 
@@ -27,7 +26,7 @@ class CalendarMonthScreenFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         childFragmentManager.commit {
-            replace(R.id.calendarContainer, CalendarMonthComponentFragment())
+            replace(R.id.calendarContainer, CalendarMonthComponentContainerFragment())
             replace(R.id.taskRvContainer, TaskRvComponentFragment())
         }
 
