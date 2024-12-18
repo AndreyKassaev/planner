@@ -99,6 +99,9 @@ fun CalendarPager(
     LaunchedEffect(currentMonthIndex) {
         pagerState.scrollToPage(currentMonthIndex)
     }
+    LaunchedEffect(pagerState.currentPage) {
+        setSelectedDate(null)
+    }
     HorizontalPager(
         state = pagerState
     ) { page ->
@@ -128,7 +131,6 @@ fun CalendarPager(
                     IconButton(
                         onClick = {
                             scope.launch {
-                                setSelectedDate(null)
                                 pagerState.scrollToPage(currentMonthIndex)
                             }
                         }
