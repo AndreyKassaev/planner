@@ -15,19 +15,19 @@ class CalendarViewModel(
     private val calendarRepository: CalendarRepository
 ) : ViewModel() {
 
-    private val currentMonthRowNumberFlowMutable = MutableStateFlow(0)
-    private val currentMonthRowNumberFlow: StateFlow<Int> = currentMonthRowNumberFlowMutable
+    private val currentMonthIndexFlowMutable = MutableStateFlow(0)
+    private val currentMonthIndexFlow: StateFlow<Int> = currentMonthIndexFlowMutable
 
-    private val selectedDateFlowMutable = MutableStateFlow(CalendarDate.mock)
-    private val selectedDateFlow: StateFlow<CalendarDate> = selectedDateFlowMutable
+    private val selectedDateFlowMutable = MutableStateFlow<CalendarDate?>(null)
+    private val selectedDateFlow: StateFlow<CalendarDate?> = selectedDateFlowMutable
 
     init {
-        getMonthRowNumber()
+        getCurrentMonthIndex()
     }
 
     fun getSelectedDateFlow() = selectedDateFlow
 
-    fun setSelectedDate(date: CalendarDate) {
+    fun setSelectedDate(date: CalendarDate?) {
         viewModelScope.launch {
             selectedDateFlowMutable.update {
                 date
@@ -35,17 +35,19 @@ class CalendarViewModel(
         }
     }
 
-    fun getMonthRowNumberFlow() = currentMonthRowNumberFlow
+    fun getCurrentMonthIndexFlow() = currentMonthIndexFlow
 
     fun getCalendarFlow() = calendarRepository.getMonthListFlow()
 
-    private fun getMonthRowNumber() {
+    private fun getCurrentMonthIndex() {
         val calendar = Calendar.getInstance()
         calendar.set(Calendar.DAY_OF_MONTH, 1)
         val currentMonthFirstDay = formatDateWithoutTime(calendar.time)
         viewModelScope.launch {
-            currentMonthRowNumberFlowMutable.update {
+            val monthRowNumber =
                 calendarRepository.getMonthRowNumber(monthFirstDay = currentMonthFirstDay)
+            currentMonthIndexFlowMutable.update {
+                if (monthRowNumber != 0) monthRowNumber - 1 else 0
             }
         }
     }

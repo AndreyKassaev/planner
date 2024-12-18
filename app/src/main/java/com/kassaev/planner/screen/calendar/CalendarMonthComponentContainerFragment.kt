@@ -29,7 +29,6 @@ import androidx.compose.ui.unit.dp
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.kassaev.planner.R
-import com.kassaev.planner.adapter.GridItem
 import com.kassaev.planner.databinding.FragmentCalendarMonthComponentContainerBinding
 import com.kassaev.planner.util.getMonthResourceId
 import com.kassaev.planner.util.getYear
@@ -61,8 +60,8 @@ class CalendarMonthComponentContainerFragment : Fragment() {
                         monthList.size
                     })
                     val scope = rememberCoroutineScope()
-                    LaunchedEffect(viewModel.getMonthRowNumberFlow()) {
-                        viewModel.getMonthRowNumberFlow().collect { row_number ->
+                    LaunchedEffect(viewModel.getCurrentMonthIndexFlow()) {
+                        viewModel.getCurrentMonthIndexFlow().collect { row_number ->
                             pagerState.scrollToPage(row_number - 1)
                         }
                     }
@@ -93,7 +92,7 @@ class CalendarMonthComponentContainerFragment : Fragment() {
                                     IconButton(
                                         onClick = {
                                             scope.launch {
-                                                viewModel.getMonthRowNumberFlow()
+                                                viewModel.getCurrentMonthIndexFlow()
                                                     .collect { row_number ->
                                                         pagerState.scrollToPage(row_number - 1)
                                                     }
@@ -117,25 +116,25 @@ class CalendarMonthComponentContainerFragment : Fragment() {
                                 modifier = Modifier.fillMaxSize(),
                                 contentPadding = PaddingValues(16.dp)
                             ) {
-                                monthList[page].previousMonthLastWeekDateList.forEachIndexed { index, date ->
-                                    item {
-                                        GridItem(index = index, date = date)
-                                    }
-                                }
-                                monthList[page].currentMonthDateList.forEachIndexed { index, date ->
-                                    item {
-                                        GridItem(
-                                            index = index + indexOffset,
-                                            date = date,
-                                            isCurrent = true
-                                        )
-                                    }
-                                }
-                                monthList[page].followingMonthFirstWeekDateList.forEachIndexed { index, date ->
-                                    item {
-                                        GridItem(index = index, date = date)
-                                    }
-                                }
+//                                monthList[page].previousMonthLastWeekDateList.forEachIndexed { index, date ->
+//                                    item {
+//                                        GridItem(index = index, date = date)
+//                                    }
+//                                }
+//                                monthList[page].currentMonthDateList.forEachIndexed { index, date ->
+//                                    item {
+//                                        GridItem(
+//                                            index = index + indexOffset,
+//                                            date = date,
+//                                            isCurrent = true
+//                                        )
+//                                    }
+//                                }
+//                                monthList[page].followingMonthFirstWeekDateList.forEachIndexed { index, date ->
+//                                    item {
+//                                        GridItem(index = index, date = date)
+//                                    }
+//                                }
                             }
                         }
                     }

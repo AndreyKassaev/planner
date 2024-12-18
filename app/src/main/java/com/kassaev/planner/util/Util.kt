@@ -64,3 +64,6 @@ fun getMonthResourceId(month: Month) =
 
 fun getYear(month: Month) =
     month.currentMonthDateList.first().date.split("-").first()
+
+fun getCurrentDay(): String =
+    Calendar.getInstance().get(Calendar.DAY_OF_MONTH).toString()

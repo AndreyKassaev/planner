@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.Flow
 interface MonthDao {
 
     @Transaction
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertAll(vararg months: Month)
 
     @Transaction
