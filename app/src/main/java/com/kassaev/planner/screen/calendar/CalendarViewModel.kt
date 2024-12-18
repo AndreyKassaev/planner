@@ -3,7 +3,6 @@ package com.kassaev.planner.screen.calendar
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kassaev.planner.data.repository.CalendarRepository
-import com.kassaev.planner.model.CalendarDate
 import com.kassaev.planner.util.formatDateWithoutTime
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -18,8 +17,8 @@ class CalendarViewModel(
     private val currentMonthIndexFlowMutable = MutableStateFlow(0)
     private val currentMonthIndexFlow: StateFlow<Int> = currentMonthIndexFlowMutable
 
-    private val selectedDateFlowMutable = MutableStateFlow<CalendarDate?>(null)
-    private val selectedDateFlow: StateFlow<CalendarDate?> = selectedDateFlowMutable
+    private val selectedDateFlowMutable = MutableStateFlow<String?>(null)
+    private val selectedDateFlow: StateFlow<String?> = selectedDateFlowMutable
 
     init {
         getCurrentMonthIndex()
@@ -27,7 +26,7 @@ class CalendarViewModel(
 
     fun getSelectedDateFlow() = selectedDateFlow
 
-    fun setSelectedDate(date: CalendarDate?) {
+    fun setSelectedDate(date: String?) {
         viewModelScope.launch {
             selectedDateFlowMutable.update {
                 date

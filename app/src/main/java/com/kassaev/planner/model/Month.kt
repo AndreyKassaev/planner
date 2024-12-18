@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Month(
-    val previousMonthLastWeekDateList: List<CalendarDate>,
-    val currentMonthDateList: List<CalendarDate>,
-    val followingMonthFirstWeekDateList: List<CalendarDate>,
+    val previousMonthLastWeekDateList: List<String>,
+    val currentMonthDateList: List<String>,
+    val followingMonthFirstWeekDateList: List<String>,
 )

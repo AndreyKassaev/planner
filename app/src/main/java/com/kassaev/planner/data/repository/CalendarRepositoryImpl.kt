@@ -25,7 +25,7 @@ class CalendarRepositoryImpl(
     }
 
     override suspend fun initDb() {
-        (-12..13).forEach { offset ->
+        (-12..12).forEach { offset ->
             val calendar = Calendar.getInstance(Locale("ru"))
             calendar.add(Calendar.MONTH, offset)
             insertMonth(

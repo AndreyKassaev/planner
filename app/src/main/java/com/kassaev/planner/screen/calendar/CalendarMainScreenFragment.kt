@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.pager.HorizontalPager
@@ -46,7 +45,6 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kassaev.planner.R
-import com.kassaev.planner.model.CalendarDate
 import com.kassaev.planner.model.Month
 import com.kassaev.planner.util.getCurrentDay
 import com.kassaev.planner.util.getDay
@@ -91,8 +89,8 @@ fun CalendarPager(
     pagerState: PagerState,
     monthList: List<Month>,
     currentMonthIndex: Int,
-    selectedDate: CalendarDate?,
-    setSelectedDate: (CalendarDate?) -> Unit,
+    selectedDate: String?,
+    setSelectedDate: (String?) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val scope = rememberCoroutineScope()
@@ -184,18 +182,18 @@ fun CalendarPager(
                     }
                 }
             }
-            LazyColumn {
-                monthList[page].currentMonthDateList.flatMap { calendarDate ->
-                    calendarDate.taskList
-                }
-                    .forEach { task ->
-                        item {
-                            Text(
-                                text = "${task.name}-${task.description}"
-                            )
-                        }
-                    }
-            }
+//            LazyColumn {
+//                monthList[page].currentMonthDateList.flatMap { calendarDate ->
+//                    calendarDate.taskList
+//                }
+//                    .forEach { task ->
+//                        item {
+//                            Text(
+//                                text = "${task.name}-${task.description}"
+//                            )
+//                        }
+//                    }
+//            }
         }
     }
 }
@@ -211,9 +209,9 @@ fun CalendarTaskList(
 
 @Composable
 fun CalendarGridItem(
-    date: CalendarDate,
-    selectedDate: CalendarDate?,
-    setSelectedDate: (CalendarDate) -> Unit,
+    date: String,
+    selectedDate: String?,
+    setSelectedDate: (String) -> Unit,
     index: Int = 0,
     isCurrent: Boolean = false,
 ) {
