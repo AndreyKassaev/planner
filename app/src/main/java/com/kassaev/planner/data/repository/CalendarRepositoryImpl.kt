@@ -1,12 +1,14 @@
 package com.kassaev.planner.data.repository
 
 import com.kassaev.planner.data.dao.MonthDao
+import com.kassaev.planner.data.entity.Task
 import com.kassaev.planner.util.MonthGenerator
 import com.kassaev.planner.util.MonthMapper.entityListToModelList
 import com.kassaev.planner.util.MonthMapper.modelToEntity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.util.Calendar
@@ -34,6 +36,9 @@ class CalendarRepositoryImpl(
             )
         }
     }
+
+    override fun getMonthTaskFlow(dateStart: Long, dateFinish: Long): Flow<List<Task>> =
+        monthDao.getMonthTaskFlow(dateStart = dateStart, dateFinish = dateFinish)
 
     override fun getMonthListFlow() =
         monthDao.getAll().map { entityListToModelList(it) }
