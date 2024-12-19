@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -13,8 +14,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -46,7 +49,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kassaev.planner.R
-import com.kassaev.planner.model.CalendarDate
+import com.kassaev.planner.data.entity.Task
 import com.kassaev.planner.model.Month
 import com.kassaev.planner.util.getCurrentDay
 import com.kassaev.planner.util.getDay
@@ -55,6 +58,7 @@ import com.kassaev.planner.util.getYear
 import com.kassaev.planner.util.isToday
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import kotlin.reflect.KFunction0
 
 class CalendarMainScreenFragment : Fragment() {
 
@@ -66,7 +70,7 @@ class CalendarMainScreenFragment : Fragment() {
     ): View {
         return ComposeView(requireContext()).apply {
             setContent {
-                val monthList by viewModel.getCalendarFlow()
+                val monthList by viewModel.getMonthListFlow()
                     .collectAsStateWithLifecycle(emptyList())
                 val currentMonthIndex by viewModel.getCurrentMonthIndexFlow()
                     .collectAsStateWithLifecycle()
@@ -74,12 +78,20 @@ class CalendarMainScreenFragment : Fragment() {
                 val pagerState = rememberPagerState(pageCount = {
                     monthList.size
                 })
+                val taskList by viewModel.getTaskListFlow()
+                    .collectAsStateWithLifecycle()
+
+                LaunchedEffect(pagerState.currentPage) {
+                    viewModel.setPagerStateCurrentPage(pagerState.currentPage)
+                }
                 CalendarPager(
                     pagerState = pagerState,
                     monthList = monthList,
                     currentMonthIndex = currentMonthIndex,
                     selectedDate = selectedDate,
-                    setSelectedDate = viewModel::setSelectedDate
+                    setSelectedDate = viewModel::setSelectedDate,
+                    taskList = taskList,
+                    onAddTask = viewModel::addMockTask
                 )
             }
         }
@@ -91,10 +103,13 @@ fun CalendarPager(
     pagerState: PagerState,
     monthList: List<Month>,
     currentMonthIndex: Int,
-    selectedDate: CalendarDate?,
-    setSelectedDate: (CalendarDate?) -> Unit,
+    selectedDate: String?,
+    setSelectedDate: (String?) -> Unit,
+    taskList: List<Task>,
+    onAddTask: KFunction0<Unit>,
     modifier: Modifier = Modifier,
 ) {
+    val context = LocalContext.current
     val scope = rememberCoroutineScope()
     LaunchedEffect(currentMonthIndex) {
         pagerState.scrollToPage(currentMonthIndex)
@@ -110,11 +125,27 @@ fun CalendarPager(
             modifier = Modifier
                 .fillMaxSize()
         ) {
+            Spacer(modifier = Modifier.height(16.dp))
             Row(
                 modifier = Modifier
                     .fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceAround
+                horizontalArrangement = Arrangement.SpaceAround,
+                verticalAlignment = Alignment.CenterVertically
             ) {
+                IconButton(
+                    onClick = {
+                        if (selectedDate != null) {
+                            onAddTask()
+                        } else {
+                            Toast.makeText(context, "Выберете дату", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.add_task),
+                        contentDescription = null
+                    )
+                }
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
@@ -131,6 +162,7 @@ fun CalendarPager(
                     IconButton(
                         onClick = {
                             scope.launch {
+                                setSelectedDate(null)
                                 pagerState.scrollToPage(currentMonthIndex)
                             }
                         }
@@ -184,36 +216,27 @@ fun CalendarPager(
                     }
                 }
             }
-            LazyColumn {
-                monthList[page].currentMonthDateList.flatMap { calendarDate ->
-                    calendarDate.taskList
-                }
-                    .forEach { task ->
-                        item {
-                            Text(
-                                text = "${task.name}-${task.description}"
-                            )
-                        }
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                taskList.forEach { task ->
+                    item {
+                        Text(
+                            text = "${task.name}-${task.description}"
+                        )
                     }
+                }
             }
         }
     }
 }
 
-
-@Composable
-fun CalendarTaskList(
-    pagerState: PagerState,
-    modifier: Modifier = Modifier
-) {
-
-}
-
 @Composable
 fun CalendarGridItem(
-    date: CalendarDate,
-    selectedDate: CalendarDate?,
-    setSelectedDate: (CalendarDate) -> Unit,
+    date: String,
+    selectedDate: String?,
+    setSelectedDate: (String) -> Unit,
     index: Int = 0,
     isCurrent: Boolean = false,
 ) {

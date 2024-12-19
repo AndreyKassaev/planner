@@ -78,7 +78,6 @@ dependencies {
     // https://mvnrepository.com/artifact/androidx.viewpager2/viewpager2
     implementation(libs.androidx.viewpager2)
 
-
     //Compose
     // https://mvnrepository.com/artifact/androidx.compose.ui/ui
     implementation(libs.androidx.ui)
@@ -88,7 +87,4 @@ dependencies {
     implementation(libs.androidx.material3)
     // https://mvnrepository.com/artifact/androidx.activity/activity-compose
     implementation(libs.androidx.activity.compose)
-
-
-
 }

@@ -54,7 +54,7 @@ class CalendarMonthComponentContainerFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         lifecycleScope.launch {
-            viewModel.getCalendarFlow().collect { monthList ->
+            viewModel.getMonthListFlow().collect { monthList ->
                 binding.calendarViewPager.setContent {
                     val pagerState = rememberPagerState(pageCount = {
                         monthList.size
