@@ -70,7 +70,7 @@ class CalendarMainScreenFragment : Fragment() {
     ): View {
         return ComposeView(requireContext()).apply {
             setContent {
-                val monthList by viewModel.getCalendarFlow()
+                val monthList by viewModel.getMonthListFlow()
                     .collectAsStateWithLifecycle(emptyList())
                 val currentMonthIndex by viewModel.getCurrentMonthIndexFlow()
                     .collectAsStateWithLifecycle()
@@ -79,7 +79,7 @@ class CalendarMainScreenFragment : Fragment() {
                     monthList.size
                 })
                 val taskList by viewModel.getTaskListFlow()
-                    .collectAsStateWithLifecycle(emptyList())
+                    .collectAsStateWithLifecycle()
 
                 LaunchedEffect(pagerState.currentPage) {
                     viewModel.setPagerStateCurrentPage(pagerState.currentPage)
@@ -223,22 +223,13 @@ fun CalendarPager(
                 taskList.forEach { task ->
                     item {
                         Text(
-                            text = "${task.name}-${task.description} | {}"
+                            text = "${task.name}-${task.description}"
                         )
                     }
                 }
             }
         }
     }
-}
-
-
-@Composable
-fun CalendarTaskList(
-    pagerState: PagerState,
-    modifier: Modifier = Modifier
-) {
-
 }
 
 @Composable
