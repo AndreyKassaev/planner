@@ -15,4 +15,18 @@
     <string name="november">Ноябрь</string>
     <string name="december">Декабрь</string>
     <string name="unknown">¯\\\\_(ツ)_/¯</string>
+    <string name="monday">понедельник</string>
+    <string name="tuesday">вторник</string>
+    <string name="wednesday">среда</string>
+    <string name="thursday">четверг</string>
+    <string name="friday">пятница</string>
+    <string name="saturday">суббота</string>
+    <string name="sunday">воскресенье</string>
+    <string name="monday_short">пн</string>
+    <string name="tuesday_short">вт</string>
+    <string name="wednesday_short">ср</string>
+    <string name="thursday_short">чт</string>
+    <string name="friday_short">пт</string>
+    <string name="saturday_short">сб</string>
+    <string name="sunday_short">вс</string>
 </resources>

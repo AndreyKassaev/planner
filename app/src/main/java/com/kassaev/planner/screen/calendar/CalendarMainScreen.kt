@@ -96,6 +96,15 @@ fun CalendarPager(
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    val dayOfWeekList = listOf(
+        stringResource(R.string.monday_short),
+        stringResource(R.string.tuesday_short),
+        stringResource(R.string.wednesday_short),
+        stringResource(R.string.thursday_short),
+        stringResource(R.string.friday_short),
+        stringResource(R.string.saturday_short),
+        stringResource(R.string.sunday_short),
+    )
     LaunchedEffect(currentMonthIndex) {
         pagerState.scrollToPage(currentMonthIndex)
     }
@@ -164,6 +173,20 @@ fun CalendarPager(
                     )
                 }
             }
+            Spacer(modifier = Modifier.height(16.dp))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceAround
+            ) {
+                dayOfWeekList.forEach { dayOfWeek ->
+                    Text(
+                        text = dayOfWeek
+                    )
+                }
+            }
             LazyVerticalGrid(
                 columns = GridCells.Fixed(7),
                 modifier = Modifier.fillMaxWidth(),
@@ -172,7 +195,7 @@ fun CalendarPager(
                 monthList[page].previousMonthLastWeekDateList.forEachIndexed { index, date ->
                     item {
                         CalendarGridItem(
-                            index = index,
+                            dayIndexInMonth = index,
                             date = date,
                             selectedDate = selectedDate,
                             setSelectedDate = setSelectedDate
@@ -182,7 +205,7 @@ fun CalendarPager(
                 monthList[page].currentMonthDateList.forEachIndexed { index, date ->
                     item {
                         CalendarGridItem(
-                            index = index + indexOffset,
+                            dayIndexInMonth = index + indexOffset,
                             date = date,
                             selectedDate = selectedDate,
                             setSelectedDate = setSelectedDate,
@@ -193,7 +216,7 @@ fun CalendarPager(
                 monthList[page].followingMonthFirstWeekDateList.forEachIndexed { index, date ->
                     item {
                         CalendarGridItem(
-                            index = index,
+                            dayIndexInMonth = index,
                             date = date,
                             selectedDate = selectedDate,
                             setSelectedDate = setSelectedDate
@@ -222,11 +245,11 @@ fun CalendarGridItem(
     date: String,
     selectedDate: String?,
     setSelectedDate: (String) -> Unit,
-    index: Int = 0,
+    dayIndexInMonth: Int = 0,
     isCurrent: Boolean = false,
 ) {
     val context = LocalContext.current
-    val columnIndex = index % 7
+    val columnIndex = dayIndexInMonth % 7
     val backgroundColor = when (columnIndex) {
         5, 6 -> Color(ContextCompat.getColor(context, R.color.highlightColor))
         else -> Color.Transparent
