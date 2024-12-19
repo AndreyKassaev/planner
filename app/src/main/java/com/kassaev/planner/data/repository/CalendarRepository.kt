@@ -13,4 +13,6 @@ interface CalendarRepository {
     suspend fun getMonthRowNumber(monthFirstDay: String): Int
 
     fun getMonthTaskFlow(dateStart: Long, dateFinish: Long): Flow<List<Task>>
+
+    suspend fun upsertTask(task: Task)
 }

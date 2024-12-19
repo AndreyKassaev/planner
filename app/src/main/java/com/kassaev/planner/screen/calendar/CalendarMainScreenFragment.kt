@@ -57,6 +57,7 @@ import com.kassaev.planner.util.getYear
 import com.kassaev.planner.util.isToday
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import kotlin.reflect.KFunction0
 
 class CalendarMainScreenFragment : Fragment() {
 
@@ -79,13 +80,17 @@ class CalendarMainScreenFragment : Fragment() {
                 val taskList by viewModel.getTaskListFlow()
                     .collectAsStateWithLifecycle(emptyList())
 
+                LaunchedEffect(pagerState.currentPage) {
+                    viewModel.setPagerStateCurrentPage(pagerState.currentPage)
+                }
                 CalendarPager(
                     pagerState = pagerState,
                     monthList = monthList,
                     currentMonthIndex = currentMonthIndex,
                     selectedDate = selectedDate,
                     setSelectedDate = viewModel::setSelectedDate,
-                    taskList = taskList
+                    taskList = taskList,
+                    onAddTask = viewModel::addMockTask
                 )
             }
         }
@@ -100,6 +105,7 @@ fun CalendarPager(
     selectedDate: String?,
     setSelectedDate: (String?) -> Unit,
     taskList: List<Task>,
+    onAddTask: KFunction0<Unit>,
     modifier: Modifier = Modifier,
 ) {
     val scope = rememberCoroutineScope()
@@ -124,6 +130,16 @@ fun CalendarPager(
                 horizontalArrangement = Arrangement.SpaceAround,
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                IconButton(
+                    onClick = {
+                        onAddTask()
+                    }
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.add_task),
+                        contentDescription = null
+                    )
+                }
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
@@ -140,6 +156,7 @@ fun CalendarPager(
                     IconButton(
                         onClick = {
                             scope.launch {
+                                setSelectedDate(null)
                                 pagerState.scrollToPage(currentMonthIndex)
                             }
                         }
@@ -193,11 +210,14 @@ fun CalendarPager(
                     }
                 }
             }
-            LazyColumn {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
                 taskList.forEach { task ->
                     item {
                         Text(
-                            text = "${task.name}-${task.description}"
+                            text = "${task.name}-${task.description} | {}"
                         )
                     }
                 }

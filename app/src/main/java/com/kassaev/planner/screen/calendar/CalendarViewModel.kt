@@ -2,8 +2,8 @@ package com.kassaev.planner.screen.calendar
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.kassaev.planner.data.entity.Task
 import com.kassaev.planner.data.repository.CalendarRepository
-import com.kassaev.planner.model.Month
 import com.kassaev.planner.util.formatDateWithoutTime
 import com.kassaev.planner.util.getDayStartFinishTimestampPair
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -16,13 +16,13 @@ import kotlinx.coroutines.flow.flatMapMerge
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.Calendar
+import kotlin.random.Random
 
 class CalendarViewModel(
     private val calendarRepository: CalendarRepository
 ) : ViewModel() {
 
-    private val monthListFlowMutable = MutableStateFlow(emptyList<Month>())
-    private val monthListFlow: StateFlow<List<Month>> = monthListFlowMutable
+    private val pagerStateCurrentPageFlowMutable = MutableStateFlow(0)
 
     private val currentMonthIndexFlowMutable = MutableStateFlow(0)
     private val currentMonthIndexFlow: StateFlow<Int> = currentMonthIndexFlowMutable
@@ -31,7 +31,11 @@ class CalendarViewModel(
     private val selectedDateFlow: StateFlow<String?> = selectedDateFlowMutable
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    private val taskListFlow = combine(selectedDateFlow, monthListFlow) { selectedDate, monthList ->
+    private val taskListFlow = combine(
+        selectedDateFlow,
+        getCalendarFlow(),
+        pagerStateCurrentPageFlowMutable
+    ) { selectedDate, monthList, pagerStateCurrentPage ->
         if (selectedDate != null) {
             val dayStartFinishTimestampPair =
                 getDayStartFinishTimestampPair(dateString = selectedDate)
@@ -46,7 +50,7 @@ class CalendarViewModel(
         } else {
             if (monthList.isNotEmpty()) {
                 val currentMonthDateList =
-                    monthList[currentMonthIndexFlow.first()].currentMonthDateList
+                    monthList[pagerStateCurrentPageFlowMutable.first()].currentMonthDateList
                 val monthStartTimestamp =
                     getDayStartFinishTimestampPair(currentMonthDateList.first())?.first
                 val monthFinishTimestamp =
@@ -66,10 +70,32 @@ class CalendarViewModel(
         }
     }.flatMapMerge { it }
 
-    fun getTaskListFlow() = taskListFlow
-
     init {
         getCurrentMonthIndex()
+    }
+
+    fun setPagerStateCurrentPage(currentPage: Int) {
+        viewModelScope.launch {
+            pagerStateCurrentPageFlowMutable.update {
+                currentPage
+            }
+        }
+    }
+
+    fun getTaskListFlow() = taskListFlow
+
+    fun addMockTask() {
+        viewModelScope.launch {
+            calendarRepository.upsertTask(
+                Task(
+                    id = Random.nextLong(),
+                    dateStart = System.currentTimeMillis(),
+                    dateFinish = System.currentTimeMillis() + 1001,
+                    name = "name",
+                    description = "description"
+                )
+            )
+        }
     }
 
     fun getSelectedDateFlow() = selectedDateFlow

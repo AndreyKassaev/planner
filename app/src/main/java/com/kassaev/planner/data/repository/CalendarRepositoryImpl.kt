@@ -18,7 +18,7 @@ class CalendarRepositoryImpl(
     private val monthDao: MonthDao
 ) : CalendarRepository {
 
-    val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     init {
         scope.launch {
@@ -43,6 +43,15 @@ class CalendarRepositoryImpl(
     override fun getMonthListFlow() =
         monthDao.getAll().map { entityListToModelList(it) }
 
+
+    override suspend fun getMonthRowNumber(monthFirstDay: String): Int =
+        monthDao.getMonthRowNumber(monthFirstDay)
+
+    override suspend fun upsertTask(task: Task) {
+        println("upsertTask REPO")
+        monthDao.upsertTask(task = task)
+    }
+
     private suspend fun insertMonth(month: Int, year: Int) {
         monthDao.insertAll(
             modelToEntity(
@@ -53,7 +62,4 @@ class CalendarRepositoryImpl(
             )
         )
     }
-
-    override suspend fun getMonthRowNumber(monthFirstDay: String): Int =
-        monthDao.getMonthRowNumber(monthFirstDay)
 }
