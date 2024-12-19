@@ -25,14 +25,12 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,7 +45,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kassaev.planner.R
 import com.kassaev.planner.data.entity.Task
 import com.kassaev.planner.model.Month
@@ -70,33 +67,13 @@ class CalendarMainScreenFragment : Fragment() {
     ): View {
         return ComposeView(requireContext()).apply {
             setContent {
-                val monthList by viewModel.getMonthListFlow()
-                    .collectAsStateWithLifecycle(emptyList())
-                val currentMonthIndex by viewModel.getCurrentMonthIndexFlow()
-                    .collectAsStateWithLifecycle()
-                val selectedDate by viewModel.getSelectedDateFlow().collectAsStateWithLifecycle()
-                val pagerState = rememberPagerState(pageCount = {
-                    monthList.size
-                })
-                val taskList by viewModel.getTaskListFlow()
-                    .collectAsStateWithLifecycle()
-
-                LaunchedEffect(pagerState.currentPage) {
-                    viewModel.setPagerStateCurrentPage(pagerState.currentPage)
-                }
-                CalendarPager(
-                    pagerState = pagerState,
-                    monthList = monthList,
-                    currentMonthIndex = currentMonthIndex,
-                    selectedDate = selectedDate,
-                    setSelectedDate = viewModel::setSelectedDate,
-                    taskList = taskList,
-                    onAddTask = viewModel::addMockTask
-                )
+                CalendarManScreen()
             }
         }
     }
+
 }
+
 
 @Composable
 fun CalendarPager(
