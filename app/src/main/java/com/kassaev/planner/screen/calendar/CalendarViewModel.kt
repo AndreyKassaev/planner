@@ -2,13 +2,17 @@ package com.kassaev.planner.screen.calendar
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.kassaev.planner.data.entity.Task
 import com.kassaev.planner.data.repository.CalendarRepository
+import com.kassaev.planner.model.Month
 import com.kassaev.planner.util.formatDateWithoutTime
 import com.kassaev.planner.util.getDayStartFinishTimestampPair
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapMerge
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.Calendar
@@ -17,14 +21,52 @@ class CalendarViewModel(
     private val calendarRepository: CalendarRepository
 ) : ViewModel() {
 
+    private val monthListFlowMutable = MutableStateFlow(emptyList<Month>())
+    private val monthListFlow: StateFlow<List<Month>> = monthListFlowMutable
+
     private val currentMonthIndexFlowMutable = MutableStateFlow(0)
     private val currentMonthIndexFlow: StateFlow<Int> = currentMonthIndexFlowMutable
 
     private val selectedDateFlowMutable = MutableStateFlow<String?>(null)
     private val selectedDateFlow: StateFlow<String?> = selectedDateFlowMutable
 
-    private val taskListFlowMutable = MutableStateFlow(emptyList<Task>())
-    private val taskListFlow: StateFlow<List<Task>> = taskListFlowMutable
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val taskListFlow = combine(selectedDateFlow, monthListFlow) { selectedDate, monthList ->
+        if (selectedDate != null) {
+            val dayStartFinishTimestampPair =
+                getDayStartFinishTimestampPair(dateString = selectedDate)
+            if (dayStartFinishTimestampPair != null) {
+                calendarRepository.getMonthTaskFlow(
+                    dateStart = dayStartFinishTimestampPair.first,
+                    dateFinish = dayStartFinishTimestampPair.second
+                )
+            } else {
+                emptyFlow()
+            }
+        } else {
+            if (monthList.isNotEmpty()) {
+                val currentMonthDateList =
+                    monthList[currentMonthIndexFlow.first()].currentMonthDateList
+                val monthStartTimestamp =
+                    getDayStartFinishTimestampPair(currentMonthDateList.first())?.first
+                val monthFinishTimestamp =
+                    getDayStartFinishTimestampPair(currentMonthDateList.last())?.second
+
+                if (monthStartTimestamp != null && monthFinishTimestamp != null) {
+                    calendarRepository.getMonthTaskFlow(
+                        dateStart = monthStartTimestamp,
+                        dateFinish = monthFinishTimestamp
+                    )
+                } else {
+                    emptyFlow()
+                }
+            } else {
+                emptyFlow()
+            }
+        }
+    }.flatMapMerge { it }
+
+    fun getTaskListFlow() = taskListFlow
 
     init {
         getCurrentMonthIndex()
@@ -33,39 +75,12 @@ class CalendarViewModel(
     fun getSelectedDateFlow() = selectedDateFlow
 
     fun setSelectedDate(date: String?) {
-        date?.let {
-            setTaskListFlow(it)
-        }
         viewModelScope.launch {
             selectedDateFlowMutable.update {
                 date
             }
         }
     }
-
-    fun setTaskListFlow(date: String) {
-        val startFinishPair = getDayStartFinishTimestampPair(dateString = date)
-        startFinishPair?.let { timestampPair ->
-            viewModelScope.launch {
-                calendarRepository.getMonthTaskFlow(
-                    dateStart = timestampPair.first,
-                    dateFinish = timestampPair.second
-                ).collectLatest { taskList ->
-                    taskListFlowMutable.update {
-                        taskList
-                    }
-                }
-            }
-        }
-    }
-
-//    fun getMonthTaskFlow(): Flow<List<Task>> {
-//        //TODO val firstDayOfMonthTimestampPair = getDayStartFinishTimestampPair(monthList[currentMonthIndex].currentMonthDateList.first())
-//        return calendarRepository.getMonthTaskFlow(
-//            dateStart = firstDayOfMonthTimestampPair.first,
-//            dateFinish = firstDayOfMonthTimestampPair.second
-//        )
-//    }
 
     fun getCurrentMonthIndexFlow() = currentMonthIndexFlow
 

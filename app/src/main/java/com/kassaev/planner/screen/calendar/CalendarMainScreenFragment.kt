@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.pager.HorizontalPager
@@ -47,6 +48,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kassaev.planner.R
+import com.kassaev.planner.data.entity.Task
 import com.kassaev.planner.model.Month
 import com.kassaev.planner.util.getCurrentDay
 import com.kassaev.planner.util.getDay
@@ -74,12 +76,16 @@ class CalendarMainScreenFragment : Fragment() {
                 val pagerState = rememberPagerState(pageCount = {
                     monthList.size
                 })
+                val taskList by viewModel.getTaskListFlow()
+                    .collectAsStateWithLifecycle(emptyList())
+
                 CalendarPager(
                     pagerState = pagerState,
                     monthList = monthList,
                     currentMonthIndex = currentMonthIndex,
                     selectedDate = selectedDate,
-                    setSelectedDate = viewModel::setSelectedDate
+                    setSelectedDate = viewModel::setSelectedDate,
+                    taskList = taskList
                 )
             }
         }
@@ -93,6 +99,7 @@ fun CalendarPager(
     currentMonthIndex: Int,
     selectedDate: String?,
     setSelectedDate: (String?) -> Unit,
+    taskList: List<Task>,
     modifier: Modifier = Modifier,
 ) {
     val scope = rememberCoroutineScope()
@@ -186,18 +193,15 @@ fun CalendarPager(
                     }
                 }
             }
-//            LazyColumn {
-//                monthList[page].currentMonthDateList.flatMap { calendarDate ->
-//                    calendarDate.taskList
-//                }
-//                    .forEach { task ->
-//                        item {
-//                            Text(
-//                                text = "${task.name}-${task.description}"
-//                            )
-//                        }
-//                    }
-//            }
+            LazyColumn {
+                taskList.forEach { task ->
+                    item {
+                        Text(
+                            text = "${task.name}-${task.description}"
+                        )
+                    }
+                }
+            }
         }
     }
 }
