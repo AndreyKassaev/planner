@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -108,6 +109,7 @@ fun CalendarPager(
     onAddTask: KFunction0<Unit>,
     modifier: Modifier = Modifier,
 ) {
+    val context = LocalContext.current
     val scope = rememberCoroutineScope()
     LaunchedEffect(currentMonthIndex) {
         pagerState.scrollToPage(currentMonthIndex)
@@ -132,7 +134,11 @@ fun CalendarPager(
             ) {
                 IconButton(
                     onClick = {
-                        onAddTask()
+                        if (selectedDate != null) {
+                            onAddTask()
+                        } else {
+                            Toast.makeText(context, "Выберете дату", Toast.LENGTH_SHORT).show()
+                        }
                     }
                 ) {
                     Icon(
