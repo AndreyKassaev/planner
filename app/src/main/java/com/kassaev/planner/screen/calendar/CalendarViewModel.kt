@@ -14,7 +14,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.Calendar
-import kotlin.random.Random
 
 class CalendarViewModel(
     private val calendarRepository: CalendarRepository
@@ -32,9 +31,12 @@ class CalendarViewModel(
     private val taskListFlow: StateFlow<List<Task>> = taskListFlowMutable
     private val taskListFlowCombined = combine(
         selectedDateFlow,
-        pagerStateCurrentPageFlowMutable
-    ) { selectedDate, pagerCurrentPage ->
-        Pair(selectedDate, pagerCurrentPage)
+        pagerStateCurrentPageFlowMutable,
+        getMonthListFlow()
+    ) { selectedDate, pagerCurrentPage, monthList ->
+        monthList.isNotEmpty().let {
+            Pair(selectedDate, pagerCurrentPage)
+        }
     }
 
     init {
@@ -55,25 +57,6 @@ class CalendarViewModel(
     }
 
     fun getTaskListFlow() = taskListFlow
-
-    fun addMockTask() {
-        viewModelScope.launch {
-            selectedDateFlow.first()?.let { selectedDate ->
-                val dayStartFinishTimestampPair = getDayStartFinishTimestampPair(selectedDate)
-                dayStartFinishTimestampPair?.let { timestampPair ->
-                    calendarRepository.upsertTask(
-                        Task(
-                            id = Random.nextLong(),
-                            dateStart = timestampPair.first,
-                            dateFinish = timestampPair.second,
-                            name = "name",
-                            description = "description"
-                        )
-                    )
-                }
-            }
-        }
-    }
 
     fun getSelectedDateFlow() = selectedDateFlow
 

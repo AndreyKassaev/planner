@@ -1,11 +1,10 @@
 package com.kassaev.planner.model
 
 import kotlinx.serialization.Serializable
-import kotlin.random.Random
 
 @Serializable
 data class Task(
-    val id: Long,
+    val id: Long = 0,
     val dateStart: Long,
     val dateFinish: Long,
     val name: String,
@@ -13,7 +12,6 @@ data class Task(
 ) {
     companion object {
         val mock = Task(
-            id = Random.nextLong(),
             dateStart = System.currentTimeMillis(),
             dateFinish = System.currentTimeMillis(),
             name = "",
