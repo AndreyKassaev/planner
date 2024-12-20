@@ -1,10 +1,10 @@
 package com.kassaev.planner.data.repository
 
 import com.kassaev.planner.data.dao.MonthDao
-import com.kassaev.planner.data.entity.Task
+import com.kassaev.planner.model.Task
 import com.kassaev.planner.util.MonthGenerator
-import com.kassaev.planner.util.MonthMapper.entityListToModelList
-import com.kassaev.planner.util.MonthMapper.modelToEntity
+import com.kassaev.planner.util.MonthMapper
+import com.kassaev.planner.util.TaskMapper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -39,22 +39,24 @@ class CalendarRepositoryImpl(
 
     override fun getMonthTaskFlow(dateStart: Long, dateFinish: Long): Flow<List<Task>> =
         monthDao.getMonthTaskFlow(dateStart = dateStart, dateFinish = dateFinish)
+            .map { TaskMapper.entityListToModelList(it) }
 
     override fun getMonthListFlow() =
-        monthDao.getAll().map { entityListToModelList(it) }
+        monthDao.getAll().map { MonthMapper.entityListToModelList(it) }
 
 
     override suspend fun getMonthRowNumber(monthFirstDay: String): Int =
         monthDao.getMonthRowNumber(monthFirstDay)
 
     override suspend fun upsertTask(task: Task) {
-        println("upsertTask REPO")
-        monthDao.upsertTask(task = task)
+        monthDao.upsertTask(
+            task = TaskMapper.modelToEntity(task)
+        )
     }
 
     private suspend fun insertMonth(month: Int, year: Int) {
         monthDao.insertAll(
-            modelToEntity(
+            MonthMapper.modelToEntity(
                 MonthGenerator.getMonth(
                     month = month,
                     year = year

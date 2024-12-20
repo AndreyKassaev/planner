@@ -43,8 +43,8 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kassaev.planner.R
-import com.kassaev.planner.data.entity.Task
 import com.kassaev.planner.model.Month
+import com.kassaev.planner.model.Task
 import com.kassaev.planner.util.getCurrentDay
 import com.kassaev.planner.util.getDay
 import com.kassaev.planner.util.getMonthResourceId
