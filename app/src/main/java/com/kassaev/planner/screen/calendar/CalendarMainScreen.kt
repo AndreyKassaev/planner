@@ -233,6 +233,13 @@ fun CalendarPager(
                 taskList.forEach { task ->
                     item {
                         Text(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(Color.LightGray)
+                                .padding(16.dp)
+                                .clickable {
+                                    navController.navigate(TaskDetail(taskId = task.id))
+                                },
                             text = "${task.name}-${task.description}"
                         )
                     }
