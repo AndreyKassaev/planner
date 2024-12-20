@@ -54,6 +54,9 @@ class CalendarRepositoryImpl(
         )
     }
 
+    override fun getTaskByIdFlow(id: Long): Flow<Task> =
+        monthDao.getTaskById(taskId = id).map { TaskMapper.entityToModel(it) }
+
     private suspend fun insertMonth(month: Int, year: Int) {
         monthDao.insertAll(
             MonthMapper.modelToEntity(

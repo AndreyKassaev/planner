@@ -38,7 +38,7 @@ class CalendarViewModel(
     }
 
     init {
-        getCurrentMonthIndex()
+        setCurrentMonthIndex()
         viewModelScope.launch {
             taskListFlowCombined.collect { (selectedDate, pagerCurrentPage) ->
                 setTaskList(selectedDate, pagerCurrentPage)
@@ -89,7 +89,7 @@ class CalendarViewModel(
 
     fun getMonthListFlow() = calendarRepository.getMonthListFlow()
 
-    private fun getCurrentMonthIndex() {
+    private fun setCurrentMonthIndex() {
         val calendar = Calendar.getInstance()
         calendar.set(Calendar.DAY_OF_MONTH, 1)
         val currentMonthFirstDay = formatDateWithoutTime(calendar.time)
