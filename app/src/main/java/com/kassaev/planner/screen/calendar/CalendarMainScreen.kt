@@ -95,10 +95,6 @@ fun CalendarPager(
             monthList.size
         }
     )
-    LaunchedEffect(pagerState.currentPage) {
-        setPagerStateCurrentPage(pagerState.currentPage)
-    }
-//    val navBackStackEntry by navController.currentBackStackEntryFlow.collectAsState(initial = navController.currentBackStackEntry)
     val scope = rememberCoroutineScope()
     val dayOfWeekList = listOf(
         stringResource(R.string.monday_short),
@@ -109,11 +105,17 @@ fun CalendarPager(
         stringResource(R.string.saturday_short),
         stringResource(R.string.sunday_short),
     )
+    LaunchedEffect(pagerState.currentPage) {
+        setPagerStateCurrentPage(pagerState.currentPage)
+        setSelectedDate(null)
+    }
     LaunchedEffect(currentMonthIndex) {
         pagerState.scrollToPage(currentMonthIndex)
     }
-    LaunchedEffect(pagerState.currentPage) {
-        setSelectedDate(null)
+    LaunchedEffect(monthList.size) {
+        if (pagerState.currentPage != currentMonthIndex) {
+            pagerState.scrollToPage(currentMonthIndex)
+        }
     }
     HorizontalPager(
         state = pagerState
