@@ -23,11 +23,9 @@ fun Navigation(modifier: Modifier = Modifier) {
             modifier = Modifier
                 .padding(paddingValues),
             navController = navController,
-            startDestination = "calendar"
+            startDestination = CalendarMainScreen
         ) {
-            composable(
-                route = "calendar"
-            ) {
+            composable<CalendarMainScreen> {
                 CalendarManScreen()
             }
         }
