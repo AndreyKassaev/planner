@@ -2,8 +2,8 @@ package com.kassaev.planner.screen.calendar
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.kassaev.planner.data.entity.Task
 import com.kassaev.planner.data.repository.CalendarRepository
+import com.kassaev.planner.model.Task
 import com.kassaev.planner.util.formatDateWithoutTime
 import com.kassaev.planner.util.getDayStartFinishTimestampPair
 import kotlinx.coroutines.flow.MutableStateFlow

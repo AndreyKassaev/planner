@@ -1,9 +1,5 @@
 package com.kassaev.planner.screen.calendar
 
-import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -38,7 +34,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -46,56 +41,46 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kassaev.planner.R
-import com.kassaev.planner.data.entity.Task
 import com.kassaev.planner.model.Month
+import com.kassaev.planner.model.Task
 import com.kassaev.planner.util.getCurrentDay
 import com.kassaev.planner.util.getDay
 import com.kassaev.planner.util.getMonthResourceId
 import com.kassaev.planner.util.getYear
 import com.kassaev.planner.util.isToday
 import kotlinx.coroutines.launch
-import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.androidx.compose.koinViewModel
 import kotlin.reflect.KFunction0
 
-class CalendarMainScreenFragment : Fragment() {
+@Composable
+fun CalendarManScreen(
+    viewModel: CalendarViewModel = koinViewModel()
+) {
+    val monthList by viewModel.getMonthListFlow()
+        .collectAsStateWithLifecycle(emptyList())
+    val currentMonthIndex by viewModel.getCurrentMonthIndexFlow()
+        .collectAsStateWithLifecycle()
+    val selectedDate by viewModel.getSelectedDateFlow().collectAsStateWithLifecycle()
+    val pagerState = rememberPagerState(pageCount = {
+        monthList.size
+    })
+    val taskList by viewModel.getTaskListFlow()
+        .collectAsStateWithLifecycle()
 
-    private val viewModel by viewModel<CalendarViewModel>()
-
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        return ComposeView(requireContext()).apply {
-            setContent {
-                val monthList by viewModel.getMonthListFlow()
-                    .collectAsStateWithLifecycle(emptyList())
-                val currentMonthIndex by viewModel.getCurrentMonthIndexFlow()
-                    .collectAsStateWithLifecycle()
-                val selectedDate by viewModel.getSelectedDateFlow().collectAsStateWithLifecycle()
-                val pagerState = rememberPagerState(pageCount = {
-                    monthList.size
-                })
-                val taskList by viewModel.getTaskListFlow()
-                    .collectAsStateWithLifecycle()
-
-                LaunchedEffect(pagerState.currentPage) {
-                    viewModel.setPagerStateCurrentPage(pagerState.currentPage)
-                }
-                CalendarPager(
-                    pagerState = pagerState,
-                    monthList = monthList,
-                    currentMonthIndex = currentMonthIndex,
-                    selectedDate = selectedDate,
-                    setSelectedDate = viewModel::setSelectedDate,
-                    taskList = taskList,
-                    onAddTask = viewModel::addMockTask
-                )
-            }
-        }
+    LaunchedEffect(pagerState.currentPage) {
+        viewModel.setPagerStateCurrentPage(pagerState.currentPage)
     }
+    CalendarPager(
+        pagerState = pagerState,
+        monthList = monthList,
+        currentMonthIndex = currentMonthIndex,
+        selectedDate = selectedDate,
+        setSelectedDate = viewModel::setSelectedDate,
+        taskList = taskList,
+        onAddTask = viewModel::addMockTask
+    )
 }
 
 @Composable
@@ -111,6 +96,15 @@ fun CalendarPager(
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    val dayOfWeekList = listOf(
+        stringResource(R.string.monday_short),
+        stringResource(R.string.tuesday_short),
+        stringResource(R.string.wednesday_short),
+        stringResource(R.string.thursday_short),
+        stringResource(R.string.friday_short),
+        stringResource(R.string.saturday_short),
+        stringResource(R.string.sunday_short),
+    )
     LaunchedEffect(currentMonthIndex) {
         pagerState.scrollToPage(currentMonthIndex)
     }
@@ -179,6 +173,20 @@ fun CalendarPager(
                     )
                 }
             }
+            Spacer(modifier = Modifier.height(16.dp))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceAround
+            ) {
+                dayOfWeekList.forEach { dayOfWeek ->
+                    Text(
+                        text = dayOfWeek
+                    )
+                }
+            }
             LazyVerticalGrid(
                 columns = GridCells.Fixed(7),
                 modifier = Modifier.fillMaxWidth(),
@@ -187,7 +195,7 @@ fun CalendarPager(
                 monthList[page].previousMonthLastWeekDateList.forEachIndexed { index, date ->
                     item {
                         CalendarGridItem(
-                            index = index,
+                            dayIndexInMonth = index,
                             date = date,
                             selectedDate = selectedDate,
                             setSelectedDate = setSelectedDate
@@ -197,7 +205,7 @@ fun CalendarPager(
                 monthList[page].currentMonthDateList.forEachIndexed { index, date ->
                     item {
                         CalendarGridItem(
-                            index = index + indexOffset,
+                            dayIndexInMonth = index + indexOffset,
                             date = date,
                             selectedDate = selectedDate,
                             setSelectedDate = setSelectedDate,
@@ -208,7 +216,7 @@ fun CalendarPager(
                 monthList[page].followingMonthFirstWeekDateList.forEachIndexed { index, date ->
                     item {
                         CalendarGridItem(
-                            index = index,
+                            dayIndexInMonth = index,
                             date = date,
                             selectedDate = selectedDate,
                             setSelectedDate = setSelectedDate
@@ -237,11 +245,11 @@ fun CalendarGridItem(
     date: String,
     selectedDate: String?,
     setSelectedDate: (String) -> Unit,
-    index: Int = 0,
+    dayIndexInMonth: Int = 0,
     isCurrent: Boolean = false,
 ) {
     val context = LocalContext.current
-    val columnIndex = index % 7
+    val columnIndex = dayIndexInMonth % 7
     val backgroundColor = when (columnIndex) {
         5, 6 -> Color(ContextCompat.getColor(context, R.color.highlightColor))
         else -> Color.Transparent

@@ -54,9 +54,13 @@ dependencies {
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
 
-    //Navigation
+    //Navigation Fragments
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
+
+    //Navigation Compose
+    // https://mvnrepository.com/artifact/androidx.navigation/navigation-compose
+    implementation(libs.androidx.navigation.compose)
 
     //Test
     testImplementation(libs.junit)
@@ -74,6 +78,11 @@ dependencies {
     //Koin DI
     // https://mvnrepository.com/artifact/io.insert-koin/koin-android
     implementation(libs.koin.android)
+    // https://mvnrepository.com/artifact/io.insert-koin/koin-androidx-compose
+    implementation(libs.koin.androidx.compose)
+    // https://mvnrepository.com/artifact/io.insert-koin/koin-androidx-navigation
+    implementation(libs.koin.androidx.navigation)
+
 
     // https://mvnrepository.com/artifact/androidx.viewpager2/viewpager2
     implementation(libs.androidx.viewpager2)

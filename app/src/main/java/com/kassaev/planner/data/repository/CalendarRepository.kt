@@ -1,7 +1,7 @@
 package com.kassaev.planner.data.repository
 
-import com.kassaev.planner.data.entity.Task
 import com.kassaev.planner.model.Month
+import com.kassaev.planner.model.Task
 import kotlinx.coroutines.flow.Flow
 
 interface CalendarRepository {
