@@ -10,7 +10,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.util.Calendar
 import java.util.Locale
 
@@ -21,7 +21,7 @@ class CalendarRepositoryImpl(
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     init {
-        scope.launch {
+        runBlocking {
             initDb()
         }
     }
