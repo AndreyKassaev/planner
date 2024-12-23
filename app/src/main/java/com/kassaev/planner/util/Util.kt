@@ -127,3 +127,24 @@ fun getMockTask(): Task {
         description = ""
     )
 }
+
+data class TimePair(
+    val start: Pair<Int, Int>,
+    val finish: Pair<Int, Int>
+)
+
+fun getMockTimePair(): TimePair {
+    val currentDateTimestamp = System.currentTimeMillis()
+    return TimePair(
+        start = timestampToTimePair(currentDateTimestamp),
+        finish = timestampToTimePair(currentDateTimestamp)
+    )
+}
+
+fun timestampToTimePair(timestamp: Long): Pair<Int, Int> {
+
+    val calendar = Calendar.getInstance()
+    calendar.timeInMillis = timestamp
+
+    return Pair(calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE))
+}

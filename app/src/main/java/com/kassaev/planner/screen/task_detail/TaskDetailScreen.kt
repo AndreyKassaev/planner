@@ -23,6 +23,7 @@ import androidx.compose.material3.TimePickerState
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,6 +43,7 @@ import com.kassaev.planner.navigation.LocalNavController
 import com.kassaev.planner.util.formatDateWithDayAndMonth
 import com.kassaev.planner.util.formatTime
 import com.kassaev.planner.util.timestampToDate
+import com.kassaev.planner.util.timestampToTimePair
 import org.koin.androidx.compose.koinViewModel
 import java.util.Calendar
 import java.util.Date
@@ -69,7 +71,9 @@ fun TaskDetailScreen(
         )
         TaskTimePicker(
             setTimeStart = viewModel::setTimeStart,
-            setTimeFinish = viewModel::setTimeFinish
+            setTimeFinish = viewModel::setTimeFinish,
+            dateStart = task.dateStart,
+            dateFinish = task.dateFinish
         )
         TaskName(
             taskName = task.name,
@@ -166,7 +170,10 @@ fun TaskTimePicker(
     modifier: Modifier = Modifier,
     setTimeStart: (Pair<Int, Int>) -> Unit,
     setTimeFinish: (Pair<Int, Int>) -> Unit,
-) {
+    dateStart: Long,
+    dateFinish: Long,
+
+    ) {
     val currentTime = Calendar.getInstance()
     var isStartTimePickerOpen by remember {
         mutableStateOf(false)
@@ -184,7 +191,20 @@ fun TaskTimePicker(
         initialMinute = currentTime.get(Calendar.MINUTE),
         is24Hour = true,
     )
-
+    LaunchedEffect(dateStart) {
+        val timePair = timestampToTimePair(dateStart)
+        startTimePickerState.apply {
+            hour = timePair.first
+            minute = timePair.second
+        }
+    }
+    LaunchedEffect(dateFinish) {
+        val timePair = timestampToTimePair(dateFinish)
+        finishTimePickerState.apply {
+            hour = timePair.first
+            minute = timePair.second
+        }
+    }
     if (isStartTimePickerOpen) {
         TimePickerDialog(
             timePickerState = startTimePickerState,
