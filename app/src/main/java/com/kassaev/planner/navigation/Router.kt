@@ -7,5 +7,6 @@ data object CalendarMainScreen
 
 @Serializable
 data class TaskDetail(
-    val taskId: Long? = null
+    val taskId: Long? = null,
+    val selectedDate: String? = null
 )

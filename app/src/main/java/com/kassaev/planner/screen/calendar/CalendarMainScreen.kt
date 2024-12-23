@@ -139,7 +139,9 @@ fun CalendarPager(
                 IconButton(
                     onClick = {
                         navController.navigate(
-                            TaskDetail()
+                            TaskDetail(
+                                selectedDate = selectedDate
+                            )
                         )
                     }
                 ) {

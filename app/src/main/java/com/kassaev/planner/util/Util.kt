@@ -1,5 +1,9 @@
 package com.kassaev.planner.util
 
+import androidx.compose.material3.DatePickerState
+import androidx.compose.material3.DisplayMode
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.SelectableDates
 import com.kassaev.planner.R
 import com.kassaev.planner.model.Month
 import java.text.SimpleDateFormat
@@ -116,4 +120,30 @@ data class TaskTime(
             finish = Pair(null, null)
         )
     }
+}
+
+//@Suppress(names = {"AutoBoxing"}) initialSelectedDateMillis: Long? = null,
+//@Suppress(names = {"AutoBoxing"}) initialDisplayedMonthMillis: Long? = initialSelectedDateMillis,
+//yearRange: IntRange = DatePickerDefaults.YearRange,
+//initialDisplayMode: DisplayMode = DisplayMode.Picker,
+//selectableDates: SelectableDates = DatePickerDefaults.AllDates
+
+@OptIn(ExperimentalMaterial3Api::class)
+class TaskDatePicker(
+
+) : DatePickerState {
+    override var displayMode: DisplayMode
+        get() = TODO("Not yet implemented")
+        set(value) {}
+    override var displayedMonthMillis: Long
+        get() = TODO("Not yet implemented")
+        set(value) {}
+    override val selectableDates: SelectableDates
+        get() = TODO("Not yet implemented")
+    override var selectedDateMillis: Long?
+        get() = TODO("Not yet implemented")
+        set(value) {}
+    override val yearRange: IntRange
+        get() = TODO("Not yet implemented")
+
 }

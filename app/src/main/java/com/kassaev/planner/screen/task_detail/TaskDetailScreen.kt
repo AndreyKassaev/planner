@@ -44,6 +44,8 @@ import com.kassaev.planner.util.formatTime
 import com.kassaev.planner.util.timestampToDate
 import org.koin.androidx.compose.koinViewModel
 import java.util.Calendar
+import java.util.Date
+import java.util.TimeZone
 
 @Composable
 fun TaskDetailScreen(
@@ -62,7 +64,8 @@ fun TaskDetailScreen(
         verticalArrangement = Arrangement.Center
     ) {
         TaskDatePicker(
-            onDateSelected = viewModel::setDate
+            onDateSelected = viewModel::setDate,
+            date = timestampToDate(task.dateStart)
         )
         TaskTimePicker(
             setTimeStart = viewModel::setTimeStart,
@@ -103,20 +106,24 @@ fun TaskDatePicker(
     modifier: Modifier = Modifier
         .fillMaxSize(),
     onDateSelected: (Long) -> Unit,
+    date: Date
 ) {
+    val offset = TimeZone.getDefault().getOffset(date.time)
+    val dateWithOffsetTimestamp by remember { mutableStateOf(date.time + offset) }
     val datePickerState = rememberDatePickerState(
-        initialSelectedDateMillis = System.currentTimeMillis()
+//        initialSelectedDateMillis = dateWithOffsetTimestamp
     )
     var isDatePickerDialogOpen by remember {
         mutableStateOf(false)
     }
+
     Text(
         modifier = Modifier
             .padding(16.dp)
             .clickable {
                 isDatePickerDialogOpen = true
             },
-        text = formatDateWithDayAndMonth(timestampToDate(datePickerState.selectedDateMillis!!)),
+        text = formatDateWithDayAndMonth(date),
         fontSize = 32.sp,
         fontWeight = FontWeight.Bold
     )
@@ -124,12 +131,14 @@ fun TaskDatePicker(
         DatePickerDialog(
             onDismissRequest = { isDatePickerDialogOpen = false },
             confirmButton = {
-                TextButton(onClick = {
-                    datePickerState.selectedDateMillis?.let { selectedDate ->
-                        onDateSelected(selectedDate)
+                TextButton(
+                    onClick = {
+                        datePickerState.selectedDateMillis?.let { selectedDate ->
+                            onDateSelected(selectedDate)
+                        }
+                        isDatePickerDialogOpen = false
                     }
-                    isDatePickerDialogOpen = false
-                }) {
+                ) {
                     Text("Сохранить")
                 }
             },
@@ -143,7 +152,9 @@ fun TaskDatePicker(
                 }
             }
         ) {
-            DatePicker(state = datePickerState)
+            DatePicker(
+                state = datePickerState,
+            )
         }
     }
 }

@@ -8,6 +8,7 @@ import com.kassaev.planner.data.repository.CalendarRepository
 import com.kassaev.planner.model.Task
 import com.kassaev.planner.navigation.TaskDetail
 import com.kassaev.planner.util.TaskTime
+import com.kassaev.planner.util.dateStringToDate
 import com.kassaev.planner.util.timestampToDate
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -35,6 +36,13 @@ class TaskDetailViewModel(
                     taskFlowMutable.update {
                         task
                     }
+                }
+            }
+            taskDetail.selectedDate?.let { selectedDate ->
+                taskFlowMutable.update { task ->
+                    task.copy(
+                        dateStart = dateStringToDate(selectedDate).time
+                    )
                 }
             }
         }
