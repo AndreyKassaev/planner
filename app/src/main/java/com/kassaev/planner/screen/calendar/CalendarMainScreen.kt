@@ -228,7 +228,9 @@ fun CalendarPager(
             }
             LazyColumn(
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                contentPadding = PaddingValues(16.dp)
             ) {
                 taskList.forEach { task ->
                     item {

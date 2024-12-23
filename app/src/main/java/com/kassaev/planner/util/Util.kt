@@ -72,3 +72,6 @@ fun getDayStartFinishTimestampPair(dateString: String): Pair<Long, Long>? {
     }
 }
 
+fun formatNumber(input: Int): String {
+    return String.format("%02d", input)
+}
