@@ -7,8 +7,8 @@ import androidx.navigation.toRoute
 import com.kassaev.planner.data.repository.CalendarRepository
 import com.kassaev.planner.model.Task
 import com.kassaev.planner.navigation.TaskDetail
-import com.kassaev.planner.util.TaskTime
 import com.kassaev.planner.util.dateStringToDate
+import com.kassaev.planner.util.hourMinutePairToTimestamp
 import com.kassaev.planner.util.timestampToDate
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -25,8 +25,6 @@ class TaskDetailViewModel(
 
     private val taskFlowMutable = MutableStateFlow(Task.mock)
     private val taskFlow: StateFlow<Task> = taskFlowMutable
-
-    private val taskTimeFlowMutable = MutableStateFlow(TaskTime.mock)
 
     init {
         viewModelScope.launch {
@@ -80,9 +78,9 @@ class TaskDetailViewModel(
 
     fun setTimeStart(hourMinutePair: Pair<Int, Int>) {
         viewModelScope.launch {
-            taskTimeFlowMutable.update { taskTime ->
-                taskTime.copy(
-                    start = hourMinutePair
+            taskFlowMutable.update { task ->
+                task.copy(
+                    dateStart = hourMinutePairToTimestamp(hourMinutePair)
                 )
             }
         }
@@ -90,35 +88,34 @@ class TaskDetailViewModel(
 
     fun setTimeFinish(hourMinutePair: Pair<Int, Int>) {
         viewModelScope.launch {
-            taskTimeFlowMutable.update { taskTime ->
-                taskTime.copy(
-                    finish = hourMinutePair
+            taskFlowMutable.update { task ->
+                task.copy(
+                    dateFinish = hourMinutePairToTimestamp(hourMinutePair)
                 )
             }
         }
     }
 
     fun setDate(timestamp: Long) {
-        val date = timestampToDate(timestamp)
         val calendar = Calendar.getInstance()
         calendar.timeInMillis = timestamp
 
         viewModelScope.launch {
-            taskTimeFlowMutable.collectLatest { taskTime ->
-                calendar.set(Calendar.HOUR_OF_DAY, taskTime.start.first ?: 0)
-                calendar.set(Calendar.MINUTE, taskTime.start.second ?: 0)
-                val dateStart = calendar.timeInMillis
+            taskFlowMutable.update { task ->
 
-                calendar.set(Calendar.HOUR_OF_DAY, taskTime.finish.first ?: 0)
-                calendar.set(Calendar.MINUTE, taskTime.finish.second ?: 0)
-                val dateFinish = calendar.timeInMillis
+                calendar.set(Calendar.HOUR_OF_DAY, timestampToDate(task.dateStart).hours)
+                calendar.set(Calendar.MINUTE, timestampToDate(task.dateStart).minutes)
 
-                taskFlowMutable.update { task ->
-                    task.copy(
-                        dateStart = dateStart,
-                        dateFinish = dateFinish
-                    )
-                }
+                val taskCopy = task.copy(
+                    dateStart = calendar.timeInMillis,
+                )
+
+                calendar.set(Calendar.HOUR_OF_DAY, timestampToDate(task.dateFinish).hours)
+                calendar.set(Calendar.MINUTE, timestampToDate(task.dateFinish).minutes)
+
+                taskCopy.copy(
+                    dateFinish = calendar.timeInMillis
+                )
             }
         }
     }
