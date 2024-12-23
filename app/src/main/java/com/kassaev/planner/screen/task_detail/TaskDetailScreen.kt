@@ -12,11 +12,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TimePickerState
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -28,13 +32,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kassaev.planner.navigation.LocalNavController
-import com.kassaev.planner.util.formatNumber
+import com.kassaev.planner.util.formatDateWithDayAndMonth
+import com.kassaev.planner.util.formatTime
+import com.kassaev.planner.util.timestampToDate
 import org.koin.androidx.compose.koinViewModel
 import java.util.Calendar
 
@@ -54,7 +61,9 @@ fun TaskDetailScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        TaskDatePicker()
+        TaskDatePicker(
+            onDateSelected = viewModel::setDate
+        )
         TaskTimePicker(
             setTimeStart = viewModel::setTimeStart,
             setTimeFinish = viewModel::setTimeFinish
@@ -88,9 +97,55 @@ fun TaskDetailScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TaskDatePicker(modifier: Modifier = Modifier) {
-
+fun TaskDatePicker(
+    modifier: Modifier = Modifier
+        .fillMaxSize(),
+    onDateSelected: (Long) -> Unit,
+) {
+    val datePickerState = rememberDatePickerState(
+        initialSelectedDateMillis = System.currentTimeMillis()
+    )
+    var isDatePickerDialogOpen by remember {
+        mutableStateOf(false)
+    }
+    Text(
+        modifier = Modifier
+            .padding(16.dp)
+            .clickable {
+                isDatePickerDialogOpen = true
+            },
+        text = formatDateWithDayAndMonth(timestampToDate(datePickerState.selectedDateMillis!!)),
+        fontSize = 32.sp,
+        fontWeight = FontWeight.Bold
+    )
+    if (isDatePickerDialogOpen) {
+        DatePickerDialog(
+            onDismissRequest = { isDatePickerDialogOpen = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    datePickerState.selectedDateMillis?.let { selectedDate ->
+                        onDateSelected(selectedDate)
+                    }
+                    isDatePickerDialogOpen = false
+                }) {
+                    Text("Сохранить")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        isDatePickerDialogOpen = false
+                    }
+                ) {
+                    Text("Отмена")
+                }
+            }
+        ) {
+            DatePicker(state = datePickerState)
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -147,7 +202,7 @@ fun TaskTimePicker(
                 .clickable {
                     isStartTimePickerOpen = true
                 },
-            text = "${formatNumber(startTimePickerState.hour)} : ${formatNumber(startTimePickerState.minute)}",
+            text = "${formatTime(startTimePickerState.hour)} : ${formatTime(startTimePickerState.minute)}",
             fontSize = 24.sp
         )
         Text(
@@ -162,8 +217,8 @@ fun TaskTimePicker(
                 .clickable {
                     isFinishTimePickerOpen = true
                 },
-            text = "${formatNumber(finishTimePickerState.hour)} : ${
-                formatNumber(
+            text = "${formatTime(finishTimePickerState.hour)} : ${
+                formatTime(
                     finishTimePickerState.minute
                 )
             }",

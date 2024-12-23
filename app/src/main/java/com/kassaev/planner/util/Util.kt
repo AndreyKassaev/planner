@@ -19,6 +19,9 @@ fun getDay(date: String) = date.split("-").last().toInt().toString()
 fun formatDateWithoutTime(date: Date) =
     SimpleDateFormat("yyyy-MM-dd", Locale("ru")).format(date)
 
+fun formatDateWithDayAndMonth(date: Date) =
+    SimpleDateFormat("dd MMMM", Locale.getDefault()).format(date)
+
 fun getMonthResourceId(month: Month) =
     when (month.currentMonthDateList.first().split("-")[1].toInt()) {
         1 -> R.string.january
@@ -73,7 +76,7 @@ fun getDayStartFinishTimestampPair(dateString: String): Pair<Long, Long>? {
     }
 }
 
-fun formatNumber(input: Int): String =
+fun formatTime(input: Int): String =
     String.format("%02d", input)
 
 
@@ -98,4 +101,19 @@ fun getDayOfMonth(date: Date): Int {
         time = date
     }
     return calendar.get(Calendar.DAY_OF_MONTH)
+}
+
+fun dateStringToDate(dateString: String) =
+    SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(dateString)
+
+data class TaskTime(
+    val start: Pair<Int?, Int?>,
+    val finish: Pair<Int?, Int?>,
+) {
+    companion object {
+        val mock = TaskTime(
+            start = Pair(null, null),
+            finish = Pair(null, null)
+        )
+    }
 }

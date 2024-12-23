@@ -25,11 +25,7 @@ fun Navigation(modifier: Modifier = Modifier) {
     CompositionLocalProvider(
         LocalNavController provides navController
     ) {
-        Scaffold(
-            floatingActionButton = {
-                AddTaskFAB()
-            }
-        ) { paddingValues ->
+        Scaffold() { paddingValues ->
             NavHost(
                 modifier = Modifier
                     .padding(paddingValues),
@@ -46,9 +42,4 @@ fun Navigation(modifier: Modifier = Modifier) {
             }
         }
     }
-}
-
-@Composable
-fun AddTaskFAB() {
-
 }

@@ -47,6 +47,7 @@ import com.kassaev.planner.model.Month
 import com.kassaev.planner.model.Task
 import com.kassaev.planner.navigation.LocalNavController
 import com.kassaev.planner.navigation.TaskDetail
+import com.kassaev.planner.util.formatTime
 import com.kassaev.planner.util.getCurrentDay
 import com.kassaev.planner.util.getDay
 import com.kassaev.planner.util.getDayOfMonth
@@ -137,7 +138,9 @@ fun CalendarPager(
             ) {
                 IconButton(
                     onClick = {
-                        navController.navigate(TaskDetail())
+                        navController.navigate(
+                            TaskDetail()
+                        )
                     }
                 ) {
                     Icon(
@@ -237,7 +240,6 @@ fun CalendarPager(
             ) {
                 taskList.forEach { task ->
                     val dateStart = timestampToDate(task.dateStart)
-                    println(dateStart)
                     item {
                         Row(
                             modifier = Modifier
@@ -246,6 +248,13 @@ fun CalendarPager(
                                     shape = RoundedCornerShape(4.dp)
                                 )
                                 .padding(8.dp)
+                                .clickable {
+                                    navController.navigate(
+                                        TaskDetail(
+                                            taskId = task.id
+                                        )
+                                    )
+                                }
                         ) {
                             Column(
                                 horizontalAlignment = Alignment.CenterHorizontally
@@ -256,16 +265,13 @@ fun CalendarPager(
                                     fontWeight = FontWeight.Bold
                                 )
                                 Text(
-                                    text = "${dateStart.hours}:${dateStart.minutes}"
+                                    text = "${formatTime(dateStart.hours)}:${formatTime(dateStart.minutes)}"
                                 )
                             }
                             Text(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(16.dp)
-                                    .clickable {
-                                        navController.navigate(TaskDetail(taskId = task.id))
-                                    },
+                                    .padding(16.dp),
                                 text = task.name
                             )
                         }
