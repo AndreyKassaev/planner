@@ -1,6 +1,5 @@
 package com.kassaev.planner.screen.calendar
 
-import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -20,7 +19,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -42,9 +40,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
 import com.kassaev.planner.R
 import com.kassaev.planner.model.Month
 import com.kassaev.planner.model.Task
+import com.kassaev.planner.navigation.LocalNavController
+import com.kassaev.planner.navigation.TaskDetail
 import com.kassaev.planner.util.getCurrentDay
 import com.kassaev.planner.util.getDay
 import com.kassaev.planner.util.getMonthResourceId
@@ -52,7 +53,6 @@ import com.kassaev.planner.util.getYear
 import com.kassaev.planner.util.isToday
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
-import kotlin.reflect.KFunction0
 
 @Composable
 fun CalendarManScreen(
@@ -62,39 +62,39 @@ fun CalendarManScreen(
         .collectAsStateWithLifecycle(emptyList())
     val currentMonthIndex by viewModel.getCurrentMonthIndexFlow()
         .collectAsStateWithLifecycle()
-    val selectedDate by viewModel.getSelectedDateFlow().collectAsStateWithLifecycle()
-    val pagerState = rememberPagerState(pageCount = {
-        monthList.size
-    })
+    val selectedDate by viewModel.getSelectedDateFlow()
+        .collectAsStateWithLifecycle()
     val taskList by viewModel.getTaskListFlow()
         .collectAsStateWithLifecycle()
+    val navController = LocalNavController.current
 
-    LaunchedEffect(pagerState.currentPage) {
-        viewModel.setPagerStateCurrentPage(pagerState.currentPage)
-    }
     CalendarPager(
-        pagerState = pagerState,
         monthList = monthList,
         currentMonthIndex = currentMonthIndex,
         selectedDate = selectedDate,
         setSelectedDate = viewModel::setSelectedDate,
         taskList = taskList,
-        onAddTask = viewModel::addMockTask
+        navController = navController,
+        setPagerStateCurrentPage = viewModel::setPagerStateCurrentPage
     )
 }
 
 @Composable
 fun CalendarPager(
-    pagerState: PagerState,
     monthList: List<Month>,
     currentMonthIndex: Int,
     selectedDate: String?,
     setSelectedDate: (String?) -> Unit,
     taskList: List<Task>,
-    onAddTask: KFunction0<Unit>,
+    navController: NavController,
+    setPagerStateCurrentPage: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val context = LocalContext.current
+    val pagerState = rememberPagerState(
+        pageCount = {
+            monthList.size
+        }
+    )
     val scope = rememberCoroutineScope()
     val dayOfWeekList = listOf(
         stringResource(R.string.monday_short),
@@ -105,11 +105,17 @@ fun CalendarPager(
         stringResource(R.string.saturday_short),
         stringResource(R.string.sunday_short),
     )
+    LaunchedEffect(pagerState.currentPage) {
+        setPagerStateCurrentPage(pagerState.currentPage)
+        setSelectedDate(null)
+    }
     LaunchedEffect(currentMonthIndex) {
         pagerState.scrollToPage(currentMonthIndex)
     }
-    LaunchedEffect(pagerState.currentPage) {
-        setSelectedDate(null)
+    LaunchedEffect(monthList.size) {
+        if (pagerState.currentPage != currentMonthIndex) {
+            pagerState.scrollToPage(currentMonthIndex)
+        }
     }
     HorizontalPager(
         state = pagerState
@@ -128,11 +134,7 @@ fun CalendarPager(
             ) {
                 IconButton(
                     onClick = {
-                        if (selectedDate != null) {
-                            onAddTask()
-                        } else {
-                            Toast.makeText(context, "Выберете дату", Toast.LENGTH_SHORT).show()
-                        }
+                        navController.navigate(TaskDetail())
                     }
                 ) {
                     Icon(
@@ -231,6 +233,13 @@ fun CalendarPager(
                 taskList.forEach { task ->
                     item {
                         Text(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(Color.LightGray)
+                                .padding(16.dp)
+                                .clickable {
+                                    navController.navigate(TaskDetail(taskId = task.id))
+                                },
                             text = "${task.name}-${task.description}"
                         )
                     }

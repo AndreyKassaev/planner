@@ -37,4 +37,8 @@ interface MonthDao {
     @Transaction
     @Upsert
     suspend fun upsertTask(task: Task)
+
+    @Transaction
+    @Query("SELECT * FROM task WHERE id = :taskId")
+    fun getTaskById(taskId: Long): Flow<Task>
 }
