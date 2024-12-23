@@ -8,6 +8,7 @@ import com.kassaev.planner.data.repository.CalendarRepository
 import com.kassaev.planner.model.Task
 import com.kassaev.planner.navigation.TaskDetail
 import com.kassaev.planner.util.dateStringToDate
+import com.kassaev.planner.util.getMockTask
 import com.kassaev.planner.util.hourMinutePairToTimestamp
 import com.kassaev.planner.util.timestampToDate
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,7 +24,7 @@ class TaskDetailViewModel(
     private val calendarRepository: CalendarRepository
 ) : ViewModel() {
 
-    private val taskFlowMutable = MutableStateFlow(Task.mock)
+    private val taskFlowMutable = MutableStateFlow(getMockTask())
     private val taskFlow: StateFlow<Task> = taskFlowMutable
 
     init {
@@ -37,11 +38,14 @@ class TaskDetailViewModel(
                 }
             }
             taskDetail.selectedDate?.let { selectedDate ->
+                val timestamp = dateStringToDate(selectedDate).time
                 taskFlowMutable.update { task ->
                     task.copy(
-                        dateStart = dateStringToDate(selectedDate).time
+                        dateStart = timestamp,
+                        dateFinish = timestamp
                     )
                 }
+                println(taskFlow.first())
             }
         }
     }
@@ -70,9 +74,10 @@ class TaskDetailViewModel(
 
     fun saveTask() {
         viewModelScope.launch {
-            calendarRepository.upsertTask(
-                task = taskFlow.first()
-            )
+            taskFlow.collectLatest { task ->
+                println(task)
+                calendarRepository.upsertTask(task)
+            }
         }
     }
 
@@ -80,9 +85,13 @@ class TaskDetailViewModel(
         viewModelScope.launch {
             taskFlowMutable.update { task ->
                 task.copy(
-                    dateStart = hourMinutePairToTimestamp(hourMinutePair)
+                    dateStart = hourMinutePairToTimestamp(
+                        hourMinutePair = hourMinutePair,
+                        currentDateTimestamp = task.dateStart
+                    )
                 )
             }
+            println("T start: ${taskFlow.first()}")
         }
     }
 
@@ -90,9 +99,13 @@ class TaskDetailViewModel(
         viewModelScope.launch {
             taskFlowMutable.update { task ->
                 task.copy(
-                    dateFinish = hourMinutePairToTimestamp(hourMinutePair)
+                    dateFinish = hourMinutePairToTimestamp(
+                        hourMinutePair = hourMinutePair,
+                        currentDateTimestamp = task.dateStart
+                    )
                 )
             }
+            println("T finish: ${taskFlow.first()}")
         }
     }
 
@@ -105,7 +118,7 @@ class TaskDetailViewModel(
 
                 calendar.set(Calendar.HOUR_OF_DAY, timestampToDate(task.dateStart).hours)
                 calendar.set(Calendar.MINUTE, timestampToDate(task.dateStart).minutes)
-
+                println("DS: ${calendar.timeInMillis}")
                 val taskCopy = task.copy(
                     dateStart = calendar.timeInMillis,
                 )
@@ -113,6 +126,7 @@ class TaskDetailViewModel(
                 calendar.set(Calendar.HOUR_OF_DAY, timestampToDate(task.dateFinish).hours)
                 calendar.set(Calendar.MINUTE, timestampToDate(task.dateFinish).minutes)
 
+                println("DF: ${calendar.timeInMillis}")
                 taskCopy.copy(
                     dateFinish = calendar.timeInMillis
                 )

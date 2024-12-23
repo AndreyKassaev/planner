@@ -1,11 +1,8 @@
 package com.kassaev.planner.util
 
-import androidx.compose.material3.DatePickerState
-import androidx.compose.material3.DisplayMode
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.SelectableDates
 import com.kassaev.planner.R
 import com.kassaev.planner.model.Month
+import com.kassaev.planner.model.Task
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -84,9 +81,9 @@ fun formatTime(input: Int): String =
     String.format("%02d", input)
 
 
-fun hourMinutePairToTimestamp(hourMinutePair: Pair<Int, Int>): Long {
+fun hourMinutePairToTimestamp(hourMinutePair: Pair<Int, Int>, currentDateTimestamp: Long): Long {
     val calendar = Calendar.getInstance()
-
+    calendar.timeInMillis = currentDateTimestamp
     calendar.set(Calendar.HOUR_OF_DAY, hourMinutePair.first)
     calendar.set(Calendar.MINUTE, hourMinutePair.second)
 
@@ -107,43 +104,26 @@ fun getDayOfMonth(date: Date): Int {
     return calendar.get(Calendar.DAY_OF_MONTH)
 }
 
-fun dateStringToDate(dateString: String) =
-    SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(dateString)
+fun dateStringToDate(dateString: String): Date {
 
-data class TaskTime(
-    val start: Pair<Int?, Int?>,
-    val finish: Pair<Int?, Int?>,
-) {
-    companion object {
-        val mock = TaskTime(
-            start = Pair(null, null),
-            finish = Pair(null, null)
-        )
-    }
+    val date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(dateString)
+    val calendar = Calendar.getInstance()
+    val currentTimestamp = System.currentTimeMillis()
+    calendar.time = date
+
+    calendar.set(Calendar.HOUR_OF_DAY, timestampToDate(currentTimestamp).hours)
+    calendar.set(Calendar.MINUTE, timestampToDate(currentTimestamp).minutes)
+
+    return calendar.time
 }
 
-//@Suppress(names = {"AutoBoxing"}) initialSelectedDateMillis: Long? = null,
-//@Suppress(names = {"AutoBoxing"}) initialDisplayedMonthMillis: Long? = initialSelectedDateMillis,
-//yearRange: IntRange = DatePickerDefaults.YearRange,
-//initialDisplayMode: DisplayMode = DisplayMode.Picker,
-//selectableDates: SelectableDates = DatePickerDefaults.AllDates
-
-@OptIn(ExperimentalMaterial3Api::class)
-class TaskDatePicker(
-
-) : DatePickerState {
-    override var displayMode: DisplayMode
-        get() = TODO("Not yet implemented")
-        set(value) {}
-    override var displayedMonthMillis: Long
-        get() = TODO("Not yet implemented")
-        set(value) {}
-    override val selectableDates: SelectableDates
-        get() = TODO("Not yet implemented")
-    override var selectedDateMillis: Long?
-        get() = TODO("Not yet implemented")
-        set(value) {}
-    override val yearRange: IntRange
-        get() = TODO("Not yet implemented")
-
+fun getMockTask(): Task {
+    val timestamp = System.currentTimeMillis()
+    println("GET TS: $timestamp")
+    return Task(
+        dateStart = timestamp,
+        dateFinish = timestamp + 1,
+        name = "",
+        description = ""
+    )
 }

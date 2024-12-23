@@ -9,13 +9,4 @@ data class Task(
     val dateFinish: Long,
     val name: String,
     val description: String
-) {
-    companion object {
-        val mock = Task(
-            dateStart = System.currentTimeMillis(),
-            dateFinish = System.currentTimeMillis(),
-            name = "",
-            description = ""
-        )
-    }
-}
+)
