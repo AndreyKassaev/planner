@@ -7,6 +7,7 @@ import androidx.navigation.toRoute
 import com.kassaev.planner.data.repository.CalendarRepository
 import com.kassaev.planner.model.Task
 import com.kassaev.planner.navigation.TaskDetail
+import com.kassaev.planner.util.hourMinutePairToTimestamp
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -61,6 +62,26 @@ class TaskDetailViewModel(
             calendarRepository.upsertTask(
                 task = taskFlow.first()
             )
+        }
+    }
+
+    fun setTimeStart(hourMinutePair: Pair<Int, Int>) {
+        viewModelScope.launch {
+            taskFlowMutable.update { task ->
+                task.copy(
+                    dateStart = hourMinutePairToTimestamp(hourMinutePair)
+                )
+            }
+        }
+    }
+
+    fun setTimeFinish(hourMinutePair: Pair<Int, Int>) {
+        viewModelScope.launch {
+            taskFlowMutable.update { task ->
+                task.copy(
+                    dateFinish = hourMinutePairToTimestamp(hourMinutePair)
+                )
+            }
         }
     }
 }

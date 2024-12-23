@@ -35,6 +35,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -48,9 +49,11 @@ import com.kassaev.planner.navigation.LocalNavController
 import com.kassaev.planner.navigation.TaskDetail
 import com.kassaev.planner.util.getCurrentDay
 import com.kassaev.planner.util.getDay
+import com.kassaev.planner.util.getDayOfMonth
 import com.kassaev.planner.util.getMonthResourceId
 import com.kassaev.planner.util.getYear
 import com.kassaev.planner.util.isToday
+import com.kassaev.planner.util.timestampToDate
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
@@ -233,17 +236,39 @@ fun CalendarPager(
                 contentPadding = PaddingValues(16.dp)
             ) {
                 taskList.forEach { task ->
+                    val dateStart = timestampToDate(task.dateStart)
+                    println(dateStart)
                     item {
-                        Text(
+                        Row(
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .background(Color.LightGray)
-                                .padding(16.dp)
-                                .clickable {
-                                    navController.navigate(TaskDetail(taskId = task.id))
-                                },
-                            text = "${task.name}-${task.description}"
-                        )
+                                .border(
+                                    BorderStroke(1.dp, Color.LightGray),
+                                    shape = RoundedCornerShape(4.dp)
+                                )
+                                .padding(8.dp)
+                        ) {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text(
+                                    text = "${getDayOfMonth(dateStart)}",
+                                    fontSize = 24.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(
+                                    text = "${dateStart.hours}:${dateStart.minutes}"
+                                )
+                            }
+                            Text(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp)
+                                    .clickable {
+                                        navController.navigate(TaskDetail(taskId = task.id))
+                                    },
+                                text = task.name
+                            )
+                        }
                     }
                 }
             }

@@ -1,5 +1,6 @@
 package com.kassaev.planner.screen.task_detail
 
+import android.widget.Toast
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -26,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -40,9 +42,10 @@ import java.util.Calendar
 fun TaskDetailScreen(
     viewModel: TaskDetailViewModel = koinViewModel()
 ) {
-
+    val context = LocalContext.current
     val navController = LocalNavController.current
     val task by viewModel.getTaskFlow().collectAsStateWithLifecycle()
+    val isTimeCorrect = task.dateStart < task.dateFinish
 
     Column(
         modifier = Modifier
@@ -53,8 +56,8 @@ fun TaskDetailScreen(
     ) {
         TaskDatePicker()
         TaskTimePicker(
-            setTimeStart = {},
-            setTimeFinish = {}
+            setTimeStart = viewModel::setTimeStart,
+            setTimeFinish = viewModel::setTimeFinish
         )
         TaskName(
             taskName = task.name,
@@ -68,8 +71,16 @@ fun TaskDetailScreen(
             modifier = Modifier
                 .fillMaxWidth(),
             onClick = {
-                viewModel.saveTask()
-                navController.popBackStack()
+                if (isTimeCorrect) {
+                    viewModel.saveTask()
+                    navController.popBackStack()
+                } else {
+                    Toast.makeText(
+                        context,
+                        "Время окончания должно быть позже времени начала",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             }
         ) {
             Text("Сохранить")
@@ -86,8 +97,8 @@ fun TaskDatePicker(modifier: Modifier = Modifier) {
 @Composable
 fun TaskTimePicker(
     modifier: Modifier = Modifier,
-    setTimeStart: (Long) -> Unit,
-    setTimeFinish: (Long) -> Unit,
+    setTimeStart: (Pair<Int, Int>) -> Unit,
+    setTimeFinish: (Pair<Int, Int>) -> Unit,
 ) {
     val currentTime = Calendar.getInstance()
     var isStartTimePickerOpen by remember {
@@ -112,7 +123,8 @@ fun TaskTimePicker(
             timePickerState = startTimePickerState,
             onDismissRequest = {
                 isStartTimePickerOpen = false
-            }
+            },
+            onSaveRequest = setTimeStart
         )
     }
     if (isFinishTimePickerOpen) {
@@ -120,7 +132,8 @@ fun TaskTimePicker(
             timePickerState = finishTimePickerState,
             onDismissRequest = {
                 isFinishTimePickerOpen = false
-            }
+            },
+            onSaveRequest = setTimeFinish
         )
     }
 
@@ -163,6 +176,7 @@ fun TaskTimePicker(
 @OptIn(ExperimentalMaterial3Api::class)
 private fun TimePickerDialog(
     onDismissRequest: () -> Unit,
+    onSaveRequest: (Pair<Int, Int>) -> Unit,
     timePickerState: TimePickerState
 ) {
     Dialog(
@@ -195,6 +209,7 @@ private fun TimePickerDialog(
                     }
                     Button(
                         onClick = {
+                            onSaveRequest(Pair(timePickerState.hour, timePickerState.minute))
                             onDismissRequest()
                         }
                     ) {

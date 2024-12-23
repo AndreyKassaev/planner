@@ -6,6 +6,7 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import java.util.TimeZone
 
 fun isToday(date: String): Boolean =
     formatDateWithoutTime(SimpleDateFormat("yyyy-MM-dd").parse(date)) == formatDateWithoutTime(
@@ -72,6 +73,29 @@ fun getDayStartFinishTimestampPair(dateString: String): Pair<Long, Long>? {
     }
 }
 
-fun formatNumber(input: Int): String {
-    return String.format("%02d", input)
+fun formatNumber(input: Int): String =
+    String.format("%02d", input)
+
+
+fun hourMinutePairToTimestamp(hourMinutePair: Pair<Int, Int>): Long {
+    val calendar = Calendar.getInstance()
+
+    calendar.set(Calendar.HOUR_OF_DAY, hourMinutePair.first)
+    calendar.set(Calendar.MINUTE, hourMinutePair.second)
+
+    return calendar.timeInMillis
+}
+
+fun timestampToDate(timestamp: Long): Date {
+    val calendar = Calendar.getInstance()
+    calendar.timeZone = TimeZone.getTimeZone(TimeZone.getDefault().id)
+    calendar.timeInMillis = timestamp
+    return calendar.time
+}
+
+fun getDayOfMonth(date: Date): Int {
+    val calendar = Calendar.getInstance().apply {
+        time = date
+    }
+    return calendar.get(Calendar.DAY_OF_MONTH)
 }
