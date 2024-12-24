@@ -29,8 +29,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -55,6 +57,7 @@ import com.kassaev.planner.util.getCurrentDay
 import com.kassaev.planner.util.getDay
 import com.kassaev.planner.util.getDayOfMonth
 import com.kassaev.planner.util.getMonthResourceId
+import com.kassaev.planner.util.getRandomEmptyDayListWord
 import com.kassaev.planner.util.getYear
 import com.kassaev.planner.util.isToday
 import com.kassaev.planner.util.timestampToDate
@@ -244,7 +247,8 @@ fun CalendarPager(
                     .alpha(alpha),
                 taskList = taskList,
                 onItemClick = navController::navigate,
-                isDateSelected = selectedDate != null
+                isDateSelected = selectedDate != null,
+                selectedDate = selectedDate
             )
         }
     }
@@ -255,8 +259,15 @@ private fun TaskListView(
     modifier: Modifier = Modifier,
     taskList: List<Task>,
     onItemClick: (TaskDetail) -> Unit,
-    isDateSelected: Boolean
+    isDateSelected: Boolean,
+    selectedDate: String?
 ) {
+    var randomPunch by remember {
+        mutableStateOf(getRandomEmptyDayListWord())
+    }
+    LaunchedEffect(selectedDate) {
+        randomPunch = getRandomEmptyDayListWord()
+    }
     val tasksByHour = remember(taskList) {
         (0..23).associateWith { hour ->
             taskList.filter { task ->
@@ -275,33 +286,45 @@ private fun TaskListView(
         contentPadding = PaddingValues(16.dp)
     ) {
         if (isDateSelected) {
-            repeat(24) { hour ->
-                val tasksForHour = tasksByHour[hour] ?: emptyList()
-                item {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    ) {
-                        Text(
-                            text = "${formatTime(hour)}:00"
-                        )
-                        Column(
+            if (taskList.isNotEmpty()) {
+                repeat(24) { hour ->
+                    val tasksForHour = tasksByHour[hour] ?: emptyList()
+                    item {
+                        Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(start = 8.dp)
                         ) {
-                            tasksForHour.forEach { task ->
-                                TaskListItemView(
-                                    onItemClick = onItemClick,
-                                    task = task
-                                )
-                                Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = "${formatTime(hour)}:00"
+                            )
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(start = 8.dp)
+                            ) {
+                                tasksForHour.forEach { task ->
+                                    TaskListItemView(
+                                        onItemClick = onItemClick,
+                                        task = task
+                                    )
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                }
                             }
                         }
+                        HorizontalDivider(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                        )
                     }
-                    HorizontalDivider(
+                }
+            } else {
+                item {
+                    Text(
                         modifier = Modifier
-                            .fillMaxWidth()
+                            .fillMaxWidth(),
+                        text = randomPunch,
+                        textAlign = TextAlign.Center,
+                        fontSize = 24.sp
                     )
                 }
             }

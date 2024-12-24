@@ -8,6 +8,7 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
+import kotlin.random.Random
 
 fun isToday(date: String): Boolean =
     formatDateWithoutTime(SimpleDateFormat("yyyy-MM-dd").parse(date)) == formatDateWithoutTime(
@@ -147,3 +148,29 @@ fun timestampToTimePair(timestamp: Long): Pair<Int, Int> {
 
     return Pair(calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE))
 }
+
+private val emptyDayList = listOf(
+    "Пусто",
+    "И тут тоже ничего",
+    "Балдёёёёж",
+    "Каеееф",
+    "НИ-ЧЕ-ГО",
+    "Совсем ничего",
+    "Ничегошеньки",
+    "Всё свободно",
+    "Никаких планов",
+    "Полная тишина",
+    "Никаких забот",
+    "Отдых сплошной",
+    "Ничего не запланировано",
+    "Свободный день",
+    "Ничего не намечено",
+    "Ни забот, ни хлопот",
+    "Бездельный день",
+    "Ничего интересного",
+    "Праздный день",
+    "Ни одной задачи"
+)
+
+fun getRandomEmptyDayListWord() =
+    emptyDayList[Random.nextInt(0, emptyDayList.size - 1)]
