@@ -8,6 +8,7 @@ import com.kassaev.planner.domain.usecase.GetTaskListFlowUseCase
 import com.kassaev.planner.model.Task
 import com.kassaev.planner.util.MonthMapper
 import com.kassaev.planner.util.TaskMapper
+import com.kassaev.planner.util.dateStringToDate
 import com.kassaev.planner.util.formatDateWithoutTime
 import com.kassaev.planner.util.getDayStartFinishTimestampPair
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,6 +20,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.Calendar
+import java.util.Date
 
 class CalendarViewModel(
     private val getMonthListFlowUseCase: GetMonthListFlowUseCase,
@@ -46,6 +48,26 @@ class CalendarViewModel(
         }
     }
 
+    private val busyDateListFlowCombined = combine(
+        taskListFlow,
+        getMonthListFlow(),
+        currentMonthIndexFlow
+    ) { taskList, monthList, currentMonthIndex ->
+        val dateList =
+            monthList[currentMonthIndex].currentMonthDateList.map { dateStringToDate(it) }
+        val taskTimestampList = taskList.map { it.dateStart }
+        dateList.filter { date ->
+            taskTimestampList.map { Date(it) }.any { timestampDate ->
+                val calendar1 = Calendar.getInstance().apply { time = date }
+                val calendar2 = Calendar.getInstance().apply { time = timestampDate }
+
+                calendar1.get(Calendar.YEAR) == calendar2.get(Calendar.YEAR) &&
+                        calendar1.get(Calendar.MONTH) == calendar2.get(Calendar.MONTH) &&
+                        calendar1.get(Calendar.DAY_OF_MONTH) == calendar2.get(Calendar.DAY_OF_MONTH)
+            }
+        }.map { formatDateWithoutTime(it) }
+    }
+
     init {
         setCurrentMonthIndex()
         viewModelScope.launch {
@@ -54,6 +76,8 @@ class CalendarViewModel(
             }
         }
     }
+
+    fun getBusyDateListFlow() = busyDateListFlowCombined
 
     fun setPagerStateCurrentPage(currentPage: Int) {
         viewModelScope.launch {

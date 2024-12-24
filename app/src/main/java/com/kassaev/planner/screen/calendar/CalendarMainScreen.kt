@@ -78,6 +78,7 @@ fun CalendarManScreen(
     val taskList by viewModel.getTaskListFlow()
         .collectAsStateWithLifecycle()
     val navController = LocalNavController.current
+    val busyDateList by viewModel.getBusyDateListFlow().collectAsStateWithLifecycle(emptyList())
 
     CalendarPager(
         monthList = monthList,
@@ -86,7 +87,8 @@ fun CalendarManScreen(
         setSelectedDate = viewModel::setSelectedDate,
         taskList = taskList,
         navController = navController,
-        setPagerStateCurrentPage = viewModel::setPagerStateCurrentPage
+        setPagerStateCurrentPage = viewModel::setPagerStateCurrentPage,
+        busyDateList = busyDateList
     )
 }
 
@@ -100,6 +102,7 @@ fun CalendarPager(
     navController: NavController,
     setPagerStateCurrentPage: (Int) -> Unit,
     modifier: Modifier = Modifier,
+    busyDateList: List<String>
 ) {
     val pagerState = rememberPagerState(
         pageCount = {
@@ -226,7 +229,8 @@ fun CalendarPager(
                             date = date,
                             selectedDate = selectedDate,
                             setSelectedDate = setSelectedDate,
-                            isCurrent = true
+                            isCurrent = true,
+                            isBusy = busyDateList.contains(date)
                         )
                     }
                 }
@@ -387,6 +391,7 @@ fun CalendarGridItem(
     setSelectedDate: (String) -> Unit,
     dayIndexInMonth: Int = 0,
     isCurrent: Boolean = false,
+    isBusy: Boolean = false
 ) {
     val context = LocalContext.current
     val columnIndex = dayIndexInMonth % 7
@@ -394,7 +399,7 @@ fun CalendarGridItem(
         5, 6 -> Color(ContextCompat.getColor(context, R.color.highlightColor))
         else -> Color.Transparent
     }
-    Text(
+    Column(
         modifier = Modifier
             .padding(8.dp)
             .background(color = if (isCurrent) backgroundColor else Color.Transparent)
@@ -420,8 +425,13 @@ fun CalendarGridItem(
             .clickable {
                 setSelectedDate(date)
             },
-        text = getDay(date),
-        fontSize = 24.sp,
-        textAlign = TextAlign.Center
-    )
+    ) {
+        Text(
+            modifier = Modifier.fillMaxSize(),
+            text = getDay(date),
+            fontSize = 24.sp,
+            fontWeight = if (isBusy) FontWeight.Bold else FontWeight.Normal,
+            textAlign = TextAlign.Center
+        )
+    }
 }
