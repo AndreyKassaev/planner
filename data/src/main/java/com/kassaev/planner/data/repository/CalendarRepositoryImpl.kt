@@ -42,7 +42,6 @@ internal class CalendarRepositoryImpl(
             monthDao.getMonthRowNumber(monthFirstDay)
         }
 
-
     override fun upsertTask(task: TaskDomain) {
         scope.launch {
             taskDao.upsertTask(
