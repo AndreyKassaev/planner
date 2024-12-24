@@ -82,7 +82,8 @@ class CalendarViewModel(
         val currentMonthFirstDay = formatDateWithoutTime(calendar.time)
         viewModelScope.launch {
             val monthRowNumber =
-                calendarRepository.getMonthRowNumber(monthFirstDay = currentMonthFirstDay)
+                calendarRepository.getMonthRowNumberDeferred(monthFirstDay = currentMonthFirstDay)
+                    .await()
             currentMonthIndexFlowMutable.update {
                 if (monthRowNumber != 0) monthRowNumber - 1 else 0
             }
@@ -96,7 +97,7 @@ class CalendarViewModel(
                 val dayStartFinishTimestampPair =
                     getDayStartFinishTimestampPair(dateString = selectedDate)
                 if (dayStartFinishTimestampPair != null) {
-                    calendarRepository.getMonthTaskFlow(
+                    calendarRepository.getTaskListFlow(
                         dateStart = dayStartFinishTimestampPair.first,
                         dateFinish = dayStartFinishTimestampPair.second
                     ).collectLatest { selectedDayTaskList ->
@@ -115,7 +116,7 @@ class CalendarViewModel(
                     getDayStartFinishTimestampPair(currentMonthDateList.last())?.second
 
                 if (monthStartTimestamp != null && monthFinishTimestamp != null) {
-                    calendarRepository.getMonthTaskFlow(
+                    calendarRepository.getTaskListFlow(
                         dateStart = monthStartTimestamp,
                         dateFinish = monthFinishTimestamp
                     ).collectLatest { wholeMonthTaskList ->

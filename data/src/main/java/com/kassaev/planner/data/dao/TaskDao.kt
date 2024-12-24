@@ -10,11 +10,11 @@ import kotlinx.coroutines.flow.Flow
 interface TaskDao {
 
     @Query("SELECT * FROM task WHERE dateStart >= :dateStart AND dateFinish <= :dateFinish ORDER BY dateStart ASC")
-    fun getMonthTaskFlow(dateStart: Long, dateFinish: Long): Flow<List<Task>>
+    fun getTaskListFlow(dateStart: Long, dateFinish: Long): Flow<List<Task>>
 
     @Upsert
     suspend fun upsertTask(task: Task)
 
     @Query("SELECT * FROM task WHERE id = :taskId")
-    fun getTaskById(taskId: Long): Flow<Task>
+    fun getTaskByIdFlow(taskId: Long): Flow<Task>
 }

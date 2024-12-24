@@ -4,7 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
-import com.kassaev.planner.domain.usecase.GetTaskByIdUseCase
+import com.kassaev.planner.domain.usecase.GetTaskByIdFlowUseCase
 import com.kassaev.planner.domain.usecase.UpsertTaskUseCase
 import com.kassaev.planner.model.Task
 import com.kassaev.planner.navigation.TaskDetail
@@ -22,7 +22,7 @@ import java.util.Calendar
 
 class TaskDetailViewModel(
     private val savedStateHandle: SavedStateHandle,
-    private val getTaskByIdUseCase: GetTaskByIdUseCase,
+    private val getTaskByIdFlowUseCase: GetTaskByIdFlowUseCase,
     private val upsertTaskUseCase: UpsertTaskUseCase
 ) : ViewModel() {
 
@@ -33,7 +33,7 @@ class TaskDetailViewModel(
         viewModelScope.launch {
             val taskDetail = savedStateHandle.toRoute<TaskDetail>()
             taskDetail.taskId?.let { taskId ->
-                getTaskByIdUseCase(taskId = taskId).collectLatest { task ->
+                getTaskByIdFlowUseCase(taskId = taskId).collectLatest { task ->
                     taskFlowMutable.update {
                         TaskMapper.domainModelToUiModel(task)
                     }
