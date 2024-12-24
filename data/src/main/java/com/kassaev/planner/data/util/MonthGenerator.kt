@@ -1,8 +1,10 @@
-package com.kassaev.planner.util
+package com.kassaev.planner.data.util
 
+import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Date
 import java.util.Locale
-import com.kassaev.planner.model.Month as MonthModel
+import com.kassaev.planner.data.model.Month as MonthModel
 
 object MonthGenerator {
 
@@ -96,3 +98,6 @@ object MonthGenerator {
         return lastWeekDateList
     }
 }
+
+private fun formatDateWithoutTime(date: Date) =
+    SimpleDateFormat("yyyy-MM-dd", Locale("ru")).format(date)

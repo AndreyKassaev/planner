@@ -4,9 +4,10 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
-import com.kassaev.planner.data.repository.CalendarRepository
+import com.kassaev.planner.domain.repository.CalendarRepository
 import com.kassaev.planner.model.Task
 import com.kassaev.planner.navigation.TaskDetail
+import com.kassaev.planner.util.TaskMapper
 import com.kassaev.planner.util.dateStringToDate
 import com.kassaev.planner.util.getMockTask
 import com.kassaev.planner.util.hourMinutePairToTimestamp
@@ -32,7 +33,7 @@ class TaskDetailViewModel(
             taskDetail.taskId?.let { taskId ->
                 calendarRepository.getTaskByIdFlow(id = taskId).collectLatest { task ->
                     taskFlowMutable.update {
-                        task
+                        TaskMapper.domainModelToUiModel(task)
                     }
                 }
             }
@@ -73,7 +74,9 @@ class TaskDetailViewModel(
     fun saveTask() {
         viewModelScope.launch {
             taskFlow.collectLatest { task ->
-                calendarRepository.upsertTask(task)
+                calendarRepository.upsertTask(
+                    TaskMapper.uiModelToDomainModel(task)
+                )
             }
         }
     }

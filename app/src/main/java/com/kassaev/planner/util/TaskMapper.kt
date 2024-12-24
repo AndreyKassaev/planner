@@ -1,31 +1,32 @@
 package com.kassaev.planner.util
 
-import com.kassaev.planner.data.entity.Task as TaskEntity
-import com.kassaev.planner.model.Task as TaskModel
+import com.kassaev.planner.domain.model.Task as TaskDomainModel
+import com.kassaev.planner.model.Task as TaskUiModel
+
 
 object TaskMapper {
 
-    fun entityToModel(entity: TaskEntity): TaskModel =
-        TaskModel(
-            id = entity.id,
-            dateStart = entity.dateStart,
-            dateFinish = entity.dateFinish,
-            name = entity.name,
-            description = entity.description
+    fun domainModelToUiModel(taskDomainModel: TaskDomainModel): TaskUiModel =
+        TaskUiModel(
+            id = taskDomainModel.id,
+            dateStart = taskDomainModel.dateStart,
+            dateFinish = taskDomainModel.dateFinish,
+            name = taskDomainModel.name,
+            description = taskDomainModel.description
         )
 
-    fun modelToEntity(model: TaskModel): TaskEntity =
-        TaskEntity(
-            id = model.id,
-            dateStart = model.dateStart,
-            dateFinish = model.dateFinish,
-            name = model.name,
-            description = model.description
+    fun uiModelToDomainModel(taskUiModel: TaskUiModel): TaskDomainModel =
+        TaskDomainModel(
+            id = taskUiModel.id,
+            dateStart = taskUiModel.dateStart,
+            dateFinish = taskUiModel.dateFinish,
+            name = taskUiModel.name,
+            description = taskUiModel.description
         )
 
-    fun entityListToModelList(entityList: List<TaskEntity>): List<TaskModel> =
-        entityList.map { entityToModel(it) }
+    fun domainModelListToUiModelList(taskDomainModelList: List<TaskDomainModel>): List<TaskUiModel> =
+        taskDomainModelList.map { domainModelToUiModel(it) }
 
-    fun modelListToEntityList(modelList: List<TaskModel>): List<TaskEntity> =
-        modelList.map { modelToEntity(it) }
+    fun uiModelListToDomainList(taskUiModelList: List<TaskUiModel>): List<TaskDomainModel> =
+        taskUiModelList.map { uiModelToDomainModel(it) }
 }

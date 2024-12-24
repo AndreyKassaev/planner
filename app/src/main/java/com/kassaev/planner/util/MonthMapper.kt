@@ -1,34 +1,27 @@
 package com.kassaev.planner.util
 
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
-import com.kassaev.planner.data.entity.Month as MonthEntity
-import com.kassaev.planner.model.Month as MonthModel
+import com.kassaev.planner.domain.model.Month as MonthDomain
+import com.kassaev.planner.model.Month as MonthUi
 
 object MonthMapper {
 
-    fun entityToModel(entity: MonthEntity): MonthModel =
-        MonthModel(
-            previousMonthLastWeekDateList = Json.decodeFromString<MonthModel>(
-                entity.data
-            ).previousMonthLastWeekDateList,
-            currentMonthDateList = Json.decodeFromString<MonthModel>(
-                entity.data
-            ).currentMonthDateList,
-            followingMonthFirstWeekDateList = Json.decodeFromString<MonthModel>(
-                entity.data
-            ).followingMonthFirstWeekDateList
+    fun domainModelToUiModel(monthDomain: MonthDomain): MonthUi =
+        MonthUi(
+            previousMonthLastWeekDateList = monthDomain.previousMonthLastWeekDateList,
+            currentMonthDateList = monthDomain.currentMonthDateList,
+            followingMonthFirstWeekDateList = monthDomain.followingMonthFirstWeekDateList
         )
 
-    fun modelToEntity(model: MonthModel): MonthEntity =
-        MonthEntity(
-            firstDay = model.currentMonthDateList.first(),
-            data = Json.encodeToString(model)
+    fun uiModelToDomainModel(monthUi: MonthUi): MonthDomain =
+        MonthDomain(
+            previousMonthLastWeekDateList = monthUi.previousMonthLastWeekDateList,
+            currentMonthDateList = monthUi.currentMonthDateList,
+            followingMonthFirstWeekDateList = monthUi.followingMonthFirstWeekDateList
         )
 
-    fun entityListToModelList(entityList: List<MonthEntity>): List<MonthModel> =
-        entityList.map { entityToModel(it) }
+    fun uiModelListToDomainModelList(monthUiList: List<MonthUi>): List<MonthDomain> =
+        monthUiList.map { uiModelToDomainModel(it) }
 
-    fun modelListToEntityList(modelList: List<MonthModel>): List<MonthEntity> =
-        modelList.map { modelToEntity(it) }
+    fun domainModelListToUiModelList(monthDomainList: List<MonthDomain>): List<MonthUi> =
+        monthDomainList.map { domainModelToUiModel(it) }
 }

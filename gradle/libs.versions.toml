@@ -7,6 +7,7 @@ junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
 appcompat = "1.7.0"
+kotlinxCoroutinesCore = "1.10.1"
 kotlinxSerializationJson = "1.7.3"
 material = "1.12.0"
 activity = "1.9.3"
@@ -19,6 +20,7 @@ roomRuntime = "2.6.1"
 ui = "1.7.6"
 uiToolingPreview = "1.7.6"
 viewpager2 = "1.1.0"
+jetbrainsKotlinJvm = "2.1.0"
 
 [libraries]
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activity" }
@@ -39,6 +41,8 @@ androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version
 koin-android = { module = "io.insert-koin:koin-android", version.ref = "koinAndroid" }
 koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koinAndroid" }
 koin-androidx-navigation = { module = "io.insert-koin:koin-androidx-navigation", version.ref = "koinAndroid" }
+koin-core = { module = "io.insert-koin:koin-core", version.ref = "koinAndroid" }
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutinesCore" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
@@ -50,5 +54,7 @@ androidx-navigation-ui-ktx = { group = "androidx.navigation", name = "navigation
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+android-library = { id = "com.android.library", version.ref = "agp" }
+jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "jetbrainsKotlinJvm" }
 
 

@@ -48,6 +48,9 @@ android {
 
 dependencies {
 
+    implementation(project(":data"))
+    implementation(project(":domain"))
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
@@ -82,7 +85,6 @@ dependencies {
     implementation(libs.koin.androidx.compose)
     // https://mvnrepository.com/artifact/io.insert-koin/koin-androidx-navigation
     implementation(libs.koin.androidx.navigation)
-
 
     // https://mvnrepository.com/artifact/androidx.viewpager2/viewpager2
     implementation(libs.androidx.viewpager2)
