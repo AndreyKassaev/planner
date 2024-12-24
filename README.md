@@ -17,6 +17,8 @@ UseCases:
 - View/Create/Edit/Delete task
 
 currently in Russian language 🇷🇺
+  
+[test included](https://github.com/AndreyKassaev/planner/blob/master/domain/src/test/java/com/kassaev/planner/domain/usecase/TaskTest.kt)
 
 ## Video Demo (click to watch - external link)
 
