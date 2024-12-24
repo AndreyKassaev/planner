@@ -2,7 +2,9 @@ package com.kassaev.planner.screen.calendar
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.kassaev.planner.domain.repository.CalendarRepository
+import com.kassaev.planner.domain.usecase.GetMonthIndexDeferredUseCase
+import com.kassaev.planner.domain.usecase.GetMonthListFlowUseCase
+import com.kassaev.planner.domain.usecase.GetTaskListFlowUseCase
 import com.kassaev.planner.model.Task
 import com.kassaev.planner.util.MonthMapper
 import com.kassaev.planner.util.TaskMapper
@@ -19,7 +21,9 @@ import kotlinx.coroutines.launch
 import java.util.Calendar
 
 class CalendarViewModel(
-    private val calendarRepository: CalendarRepository
+    private val getMonthListFlowUseCase: GetMonthListFlowUseCase,
+    private val getMonthIndexDeferredUseCase: GetMonthIndexDeferredUseCase,
+    private val getTaskListFlowUseCase: GetTaskListFlowUseCase
 ) : ViewModel() {
 
     private val pagerStateCurrentPageFlowMutable = MutableStateFlow(0)
@@ -74,7 +78,7 @@ class CalendarViewModel(
     fun getCurrentMonthIndexFlow() = currentMonthIndexFlow
 
     fun getMonthListFlow() =
-        calendarRepository.getMonthListFlow().map { MonthMapper.domainModelListToUiModelList(it) }
+        getMonthListFlowUseCase().map { MonthMapper.domainModelListToUiModelList(it) }
 
     private fun setCurrentMonthIndex() {
         val calendar = Calendar.getInstance()
@@ -82,7 +86,7 @@ class CalendarViewModel(
         val currentMonthFirstDay = formatDateWithoutTime(calendar.time)
         viewModelScope.launch {
             val monthRowNumber =
-                calendarRepository.getMonthRowNumberDeferred(monthFirstDay = currentMonthFirstDay)
+                getMonthIndexDeferredUseCase(monthFirstDay = currentMonthFirstDay)
                     .await()
             currentMonthIndexFlowMutable.update {
                 if (monthRowNumber != 0) monthRowNumber - 1 else 0
@@ -97,7 +101,7 @@ class CalendarViewModel(
                 val dayStartFinishTimestampPair =
                     getDayStartFinishTimestampPair(dateString = selectedDate)
                 if (dayStartFinishTimestampPair != null) {
-                    calendarRepository.getTaskListFlow(
+                    getTaskListFlowUseCase(
                         dateStart = dayStartFinishTimestampPair.first,
                         dateFinish = dayStartFinishTimestampPair.second
                     ).collectLatest { selectedDayTaskList ->
@@ -116,7 +120,7 @@ class CalendarViewModel(
                     getDayStartFinishTimestampPair(currentMonthDateList.last())?.second
 
                 if (monthStartTimestamp != null && monthFinishTimestamp != null) {
-                    calendarRepository.getTaskListFlow(
+                    getTaskListFlowUseCase(
                         dateStart = monthStartTimestamp,
                         dateFinish = monthFinishTimestamp
                     ).collectLatest { wholeMonthTaskList ->
