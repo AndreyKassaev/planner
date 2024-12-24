@@ -88,7 +88,6 @@ fun TaskDetailScreen(
                 .fillMaxWidth(),
             onClick = {
                 if (isTimeCorrect) {
-                    println("task.dateStart : ${task.dateStart} task.dateFinish: ${task.dateFinish}")
                     viewModel.saveTask()
                     navController.popBackStack()
                 } else {

@@ -14,7 +14,6 @@ import com.kassaev.planner.util.timestampToDate
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.Calendar
@@ -45,7 +44,6 @@ class TaskDetailViewModel(
                         dateFinish = timestamp
                     )
                 }
-                println(taskFlow.first())
             }
         }
     }
@@ -75,7 +73,6 @@ class TaskDetailViewModel(
     fun saveTask() {
         viewModelScope.launch {
             taskFlow.collectLatest { task ->
-                println(task)
                 calendarRepository.upsertTask(task)
             }
         }
@@ -91,7 +88,6 @@ class TaskDetailViewModel(
                     )
                 )
             }
-            println("T start: ${taskFlow.first()}")
         }
     }
 
@@ -105,7 +101,6 @@ class TaskDetailViewModel(
                     )
                 )
             }
-            println("T finish: ${taskFlow.first()}")
         }
     }
 
@@ -118,7 +113,6 @@ class TaskDetailViewModel(
 
                 calendar.set(Calendar.HOUR_OF_DAY, timestampToDate(task.dateStart).hours)
                 calendar.set(Calendar.MINUTE, timestampToDate(task.dateStart).minutes)
-                println("DS: ${calendar.timeInMillis}")
                 val taskCopy = task.copy(
                     dateStart = calendar.timeInMillis,
                 )
@@ -126,7 +120,6 @@ class TaskDetailViewModel(
                 calendar.set(Calendar.HOUR_OF_DAY, timestampToDate(task.dateFinish).hours)
                 calendar.set(Calendar.MINUTE, timestampToDate(task.dateFinish).minutes)
 
-                println("DF: ${calendar.timeInMillis}")
                 taskCopy.copy(
                     dateFinish = calendar.timeInMillis
                 )

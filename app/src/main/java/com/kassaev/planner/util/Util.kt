@@ -119,7 +119,6 @@ fun dateStringToDate(dateString: String): Date {
 
 fun getMockTask(): Task {
     val timestamp = System.currentTimeMillis()
-    println("GET TS: $timestamp")
     return Task(
         dateStart = timestamp,
         dateFinish = timestamp + 1,
