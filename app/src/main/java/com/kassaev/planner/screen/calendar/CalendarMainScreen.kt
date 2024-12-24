@@ -1,5 +1,6 @@
 package com.kassaev.planner.screen.calendar
 
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -21,12 +22,14 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -57,6 +60,7 @@ import com.kassaev.planner.util.isToday
 import com.kassaev.planner.util.timestampToDate
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+import java.util.Calendar
 
 @Composable
 fun CalendarManScreen(
@@ -234,53 +238,122 @@ fun CalendarPager(
                     }
                 }
             }
-            LazyColumn(
+            val alpha by animateFloatAsState(targetValue = if (pagerState.isScrollInProgress) 0f else 1f)
+            TaskListView(
                 modifier = Modifier
-                    .fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                contentPadding = PaddingValues(16.dp)
-            ) {
-                taskList.forEach { task ->
-                    val dateStart = timestampToDate(task.dateStart)
-                    item {
-                        Row(
+                    .alpha(alpha),
+                taskList = taskList,
+                onItemClick = navController::navigate,
+                isDateSelected = selectedDate != null
+            )
+        }
+    }
+}
+
+@Composable
+private fun TaskListView(
+    modifier: Modifier = Modifier,
+    taskList: List<Task>,
+    onItemClick: (TaskDetail) -> Unit,
+    isDateSelected: Boolean
+) {
+    val tasksByHour = remember(taskList) {
+        (0..23).associateWith { hour ->
+            taskList.filter { task ->
+                val calendar = Calendar.getInstance().apply {
+                    timeInMillis = task.dateStart
+                }
+                calendar.get(Calendar.HOUR_OF_DAY) == hour
+            }
+        }
+    }
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxWidth()
+            .then(modifier),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        contentPadding = PaddingValues(16.dp)
+    ) {
+        if (isDateSelected) {
+            repeat(24) { hour ->
+                val tasksForHour = tasksByHour[hour] ?: emptyList()
+                item {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    ) {
+                        Text(
+                            text = "${formatTime(hour)}:00"
+                        )
+                        Column(
                             modifier = Modifier
-                                .border(
-                                    BorderStroke(1.dp, Color.LightGray),
-                                    shape = RoundedCornerShape(4.dp)
-                                )
-                                .padding(8.dp)
-                                .clickable {
-                                    navController.navigate(
-                                        TaskDetail(
-                                            taskId = task.id
-                                        )
-                                    )
-                                }
+                                .fillMaxWidth()
+                                .padding(start = 8.dp)
                         ) {
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                Text(
-                                    text = "${getDayOfMonth(dateStart)}",
-                                    fontSize = 24.sp,
-                                    fontWeight = FontWeight.Bold
+                            tasksForHour.forEach { task ->
+                                TaskListItemView(
+                                    onItemClick = onItemClick,
+                                    task = task
                                 )
-                                Text(
-                                    text = "${formatTime(dateStart.hours)}:${formatTime(dateStart.minutes)}"
-                                )
+                                Spacer(modifier = Modifier.height(8.dp))
                             }
-                            Text(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp),
-                                text = task.name
-                            )
                         }
                     }
+                    HorizontalDivider(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    )
+                }
+            }
+        } else {
+            taskList.forEach { task ->
+                item {
+                    TaskListItemView(onItemClick, task)
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun TaskListItemView(
+    onItemClick: (TaskDetail) -> Unit,
+    task: Task,
+) {
+    val dateStart = timestampToDate(task.dateStart)
+    Row(
+        modifier = Modifier
+            .border(
+                BorderStroke(1.dp, Color.LightGray),
+                shape = RoundedCornerShape(4.dp)
+            )
+            .padding(8.dp)
+            .clickable {
+                onItemClick(
+                    TaskDetail(
+                        taskId = task.id
+                    )
+                )
+            }
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "${getDayOfMonth(dateStart)}",
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = "${formatTime(dateStart.hours)}:${formatTime(dateStart.minutes)}"
+            )
+        }
+        Text(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            text = task.name
+        )
     }
 }
 

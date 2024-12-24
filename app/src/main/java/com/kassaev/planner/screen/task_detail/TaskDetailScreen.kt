@@ -56,7 +56,7 @@ fun TaskDetailScreen(
     val context = LocalContext.current
     val navController = LocalNavController.current
     val task by viewModel.getTaskFlow().collectAsStateWithLifecycle()
-    val isTimeCorrect = task.dateStart < task.dateFinish
+    val isTimeCorrect = task.dateStart <= task.dateFinish
 
     Column(
         modifier = Modifier
@@ -114,9 +114,7 @@ fun TaskDatePicker(
 ) {
     val offset = TimeZone.getDefault().getOffset(date.time)
     val dateWithOffsetTimestamp by remember { mutableStateOf(date.time + offset) }
-    val datePickerState = rememberDatePickerState(
-//        initialSelectedDateMillis = dateWithOffsetTimestamp
-    )
+    val datePickerState = rememberDatePickerState()
     var isDatePickerDialogOpen by remember {
         mutableStateOf(false)
     }
@@ -157,6 +155,7 @@ fun TaskDatePicker(
             }
         ) {
             DatePicker(
+                showModeToggle = false,
                 state = datePickerState,
             )
         }
