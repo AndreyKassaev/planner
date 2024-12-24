@@ -48,25 +48,8 @@ class CalendarViewModel(
         }
     }
 
-    private val busyDateListFlowCombined = combine(
-        taskListFlow,
-        getMonthListFlow(),
-        currentMonthIndexFlow
-    ) { taskList, monthList, currentMonthIndex ->
-        val dateList =
-            monthList[currentMonthIndex].currentMonthDateList.map { dateStringToDate(it) }
-        val taskTimestampList = taskList.map { it.dateStart }
-        dateList.filter { date ->
-            taskTimestampList.map { Date(it) }.any { timestampDate ->
-                val calendar1 = Calendar.getInstance().apply { time = date }
-                val calendar2 = Calendar.getInstance().apply { time = timestampDate }
-
-                calendar1.get(Calendar.YEAR) == calendar2.get(Calendar.YEAR) &&
-                        calendar1.get(Calendar.MONTH) == calendar2.get(Calendar.MONTH) &&
-                        calendar1.get(Calendar.DAY_OF_MONTH) == calendar2.get(Calendar.DAY_OF_MONTH)
-            }
-        }.map { formatDateWithoutTime(it) }
-    }
+    private val busyDateListFlowMutable = MutableStateFlow<List<String>>(emptyList())
+    private val busyDateListFlow: StateFlow<List<String>> = busyDateListFlowMutable
 
     init {
         setCurrentMonthIndex()
@@ -75,9 +58,10 @@ class CalendarViewModel(
                 setTaskList(selectedDate, pagerCurrentPage)
             }
         }
+        setBusyDateListFlow()
     }
 
-    fun getBusyDateListFlow() = busyDateListFlowCombined
+    fun getBusyDateListFlow() = busyDateListFlow
 
     fun setPagerStateCurrentPage(currentPage: Int) {
         viewModelScope.launch {
@@ -118,6 +102,53 @@ class CalendarViewModel(
         }
     }
 
+    private fun setBusyDateListFlow() {
+        viewModelScope.launch {
+            pagerStateCurrentPageFlowMutable.collectLatest { currentMonthIndex ->
+                getMonthListFlow().collectLatest { monthList ->
+                    monthList[currentMonthIndex].currentMonthDateList.let { currentMonthDateList ->
+                        val monthStartTimestamp =
+                            getDayStartFinishTimestampPair(currentMonthDateList.first())?.first
+                        val monthFinishTimestamp =
+                            getDayStartFinishTimestampPair(currentMonthDateList.last())?.second
+
+                        if (monthStartTimestamp != null && monthFinishTimestamp != null) {
+                            getTaskListFlowUseCase(
+                                dateStart = monthStartTimestamp,
+                                dateFinish = monthFinishTimestamp
+                            ).collectLatest { wholeMonthTaskList ->
+                                getMonthListFlowUseCase().collectLatest { monthList ->
+                                    val dateList =
+                                        monthList[currentMonthIndexFlow.first()].currentMonthDateList.map {
+                                            dateStringToDate(
+                                                it
+                                            )
+                                        }
+                                    val taskTimestampList = wholeMonthTaskList.map { it.dateStart }
+                                    busyDateListFlowMutable.update {
+                                        dateList.filter { date ->
+                                            taskTimestampList.map { Date(it) }.any { timestampDate ->
+                                                val calendar1 = Calendar.getInstance().apply { time = date }
+                                                val calendar2 =
+                                                    Calendar.getInstance().apply { time = timestampDate }
+
+                                                calendar1.get(Calendar.YEAR) == calendar2.get(Calendar.YEAR) &&
+                                                        calendar1.get(Calendar.MONTH) == calendar2.get(Calendar.MONTH) &&
+                                                        calendar1.get(Calendar.DAY_OF_MONTH) == calendar2.get(
+                                                    Calendar.DAY_OF_MONTH
+                                                )
+                                            }
+                                        }.map { formatDateWithoutTime(it) }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     private fun setTaskList(selectedDate: String?, pagerCurrentPage: Int) {
         viewModelScope.launch {
             if (selectedDate != null) {
@@ -136,20 +167,32 @@ class CalendarViewModel(
                 }
             } else {
                 //taskList of whole month
-                val currentMonthDateList =
-                    getMonthListFlow().first()[pagerStateCurrentPageFlowMutable.first()].currentMonthDateList
-                val monthStartTimestamp =
-                    getDayStartFinishTimestampPair(currentMonthDateList.first())?.first
-                val monthFinishTimestamp =
-                    getDayStartFinishTimestampPair(currentMonthDateList.last())?.second
+//                pagerStateCurrentPageFlowMutable.collectLatest { currentMonthIndex ->
+//                getMonthListFlow().collectLatest { monthList ->
+//                    monthList[currentMonthIndex].currentMonthDateList.let { currentMonthDateList ->
+//                        val monthStartTimestamp =
+//                            getDayStartFinishTimestampPair(currentMonthDateList.first())?.first
+//                        val monthFinishTimestamp =
+//                            getDayStartFinishTimestampPair(currentMonthDateList.last())?.second
 
-                if (monthStartTimestamp != null && monthFinishTimestamp != null) {
-                    getTaskListFlowUseCase(
-                        dateStart = monthStartTimestamp,
-                        dateFinish = monthFinishTimestamp
-                    ).collectLatest { wholeMonthTaskList ->
-                        taskListFlowMutable.update {
-                            TaskMapper.domainModelListToUiModelList(wholeMonthTaskList)
+                pagerStateCurrentPageFlowMutable.collectLatest { currentMonthIndex ->
+                    getMonthListFlow().collectLatest { monthList ->
+                        monthList[currentMonthIndex].currentMonthDateList.let { currentMonthDateList ->
+                            val monthStartTimestamp =
+                                getDayStartFinishTimestampPair(currentMonthDateList.first())?.first
+                            val monthFinishTimestamp =
+                                getDayStartFinishTimestampPair(currentMonthDateList.last())?.second
+
+                            if (monthStartTimestamp != null && monthFinishTimestamp != null) {
+                                getTaskListFlowUseCase(
+                                    dateStart = monthStartTimestamp,
+                                    dateFinish = monthFinishTimestamp
+                                ).collectLatest { wholeMonthTaskList ->
+                                    taskListFlowMutable.update {
+                                        TaskMapper.domainModelListToUiModelList(wholeMonthTaskList)
+                                    }
+                                }
+                            }
                         }
                     }
                 }

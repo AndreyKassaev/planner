@@ -430,7 +430,7 @@ fun CalendarGridItem(
             modifier = Modifier.fillMaxSize(),
             text = getDay(date),
             fontSize = 24.sp,
-            fontWeight = if (isBusy) FontWeight.Bold else FontWeight.Normal,
+            fontWeight = if (isBusy) FontWeight.Black else FontWeight.Normal,
             textAlign = TextAlign.Center
         )
     }
