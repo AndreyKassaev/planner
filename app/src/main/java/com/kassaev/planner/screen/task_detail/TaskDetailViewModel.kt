@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
+import com.kassaev.planner.domain.usecase.DeleteTaskByIdUseCase
 import com.kassaev.planner.domain.usecase.GetTaskByIdFlowUseCase
 import com.kassaev.planner.domain.usecase.UpsertTaskUseCase
 import com.kassaev.planner.model.Task
@@ -23,7 +24,8 @@ import java.util.Calendar
 class TaskDetailViewModel(
     private val savedStateHandle: SavedStateHandle,
     private val getTaskByIdFlowUseCase: GetTaskByIdFlowUseCase,
-    private val upsertTaskUseCase: UpsertTaskUseCase
+    private val upsertTaskUseCase: UpsertTaskUseCase,
+    private val deleteTaskByIdUseCase: DeleteTaskByIdUseCase
 ) : ViewModel() {
 
     private val taskFlowMutable = MutableStateFlow(getMockTask())
@@ -34,8 +36,10 @@ class TaskDetailViewModel(
             val taskDetail = savedStateHandle.toRoute<TaskDetail>()
             taskDetail.taskId?.let { taskId ->
                 getTaskByIdFlowUseCase(taskId = taskId).collectLatest { task ->
-                    taskFlowMutable.update {
-                        TaskMapper.domainModelToUiModel(task)
+                    task?.let { existingTask ->
+                        taskFlowMutable.update {
+                            TaskMapper.domainModelToUiModel(existingTask)
+                        }
                     }
                 }
             }
@@ -128,6 +132,16 @@ class TaskDetailViewModel(
                 taskCopy.copy(
                     dateFinish = calendar.timeInMillis
                 )
+            }
+        }
+    }
+
+    fun deleteTask() {
+        viewModelScope.launch {
+            taskFlow.collectLatest { task ->
+                task.id?.let { id ->
+                    deleteTaskByIdUseCase(taskId = id)
+                }
             }
         }
     }

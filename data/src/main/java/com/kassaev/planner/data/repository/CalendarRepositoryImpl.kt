@@ -50,8 +50,18 @@ internal class CalendarRepositoryImpl(
         }
     }
 
-    override fun getTaskByIdFlow(id: Long): Flow<TaskDomain> =
-        taskDao.getTaskByIdFlow(taskId = id).map { TaskMapper.entityToDomainModel(it) }
+    override fun getTaskByIdFlow(id: Long): Flow<TaskDomain?> =
+        taskDao.getTaskByIdFlow(taskId = id).map { entity ->
+            entity?.let {
+                TaskMapper.entityToDomainModel(it)
+            }
+        }
+
+    override fun deleteTaskById(taskId: Long) {
+        scope.launch {
+            taskDao.deleteTaskById(taskId = taskId)
+        }
+    }
 
     private fun setMonthList() {
         runBlocking {

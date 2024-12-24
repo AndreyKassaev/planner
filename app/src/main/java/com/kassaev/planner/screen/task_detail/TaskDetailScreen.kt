@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
@@ -57,7 +58,12 @@ fun TaskDetailScreen(
     val navController = LocalNavController.current
     val task by viewModel.getTaskFlow().collectAsStateWithLifecycle()
     val isTimeCorrect = task.dateStart <= task.dateFinish
-
+    var isSaveButtonEnable by remember {
+        mutableStateOf(true)
+    }
+    var isDeleteButtonEnable by remember {
+        mutableStateOf(true)
+    }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -88,6 +94,7 @@ fun TaskDetailScreen(
                 .fillMaxWidth(),
             onClick = {
                 if (isTimeCorrect) {
+                    isSaveButtonEnable = !isSaveButtonEnable
                     viewModel.saveTask()
                     navController.popBackStack()
                 } else {
@@ -97,9 +104,26 @@ fun TaskDetailScreen(
                         Toast.LENGTH_SHORT
                     ).show()
                 }
-            }
+            },
+            enabled = isSaveButtonEnable
         ) {
             Text("Сохранить")
+        }
+        Button(
+            modifier = Modifier
+                .fillMaxWidth(),
+            onClick = {
+                isDeleteButtonEnable = !isDeleteButtonEnable
+                viewModel.deleteTask()
+                navController.popBackStack()
+            },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.Red,
+                contentColor = Color.White
+            ),
+            enabled = isDeleteButtonEnable
+        ) {
+            Text("Удалить")
         }
     }
 }
@@ -113,7 +137,6 @@ fun TaskDatePicker(
     date: Date
 ) {
     val offset = TimeZone.getDefault().getOffset(date.time)
-    val dateWithOffsetTimestamp by remember { mutableStateOf(date.time + offset) }
     val datePickerState = rememberDatePickerState()
     var isDatePickerDialogOpen by remember {
         mutableStateOf(false)

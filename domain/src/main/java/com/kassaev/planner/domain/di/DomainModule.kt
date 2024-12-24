@@ -1,5 +1,7 @@
 package com.kassaev.planner.domain.di
 
+import com.kassaev.planner.domain.usecase.DeleteTaskByIdUseCase
+import com.kassaev.planner.domain.usecase.DeleteTaskByIdUseCaseImpl
 import com.kassaev.planner.domain.usecase.GetMonthIndexDeferredUseCase
 import com.kassaev.planner.domain.usecase.GetMonthIndexDeferredUseCaseImpl
 import com.kassaev.planner.domain.usecase.GetMonthListFlowUseCase
@@ -20,4 +22,5 @@ val domainModule = module {
     singleOf(::GetMonthListFlowUseCaseImpl) bind GetMonthListFlowUseCase::class
     singleOf(::GetMonthIndexDeferredUseCaseImpl) bind GetMonthIndexDeferredUseCase::class
     singleOf(::GetTaskListFlowUseCaseImpl) bind GetTaskListFlowUseCase::class
+    singleOf(::DeleteTaskByIdUseCaseImpl) bind DeleteTaskByIdUseCase::class
 }

@@ -17,4 +17,7 @@ interface TaskDao {
 
     @Query("SELECT * FROM task WHERE id = :taskId")
     fun getTaskByIdFlow(taskId: Long): Flow<Task>
+
+    @Query("DELETE FROM task WHERE id = :taskId")
+    suspend fun deleteTaskById(taskId: Long)
 }

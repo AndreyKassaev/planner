@@ -16,5 +16,7 @@ interface CalendarRepository {
 
     fun upsertTask(task: Task)
 
-    fun getTaskByIdFlow(id: Long): Flow<Task>
+    fun getTaskByIdFlow(id: Long): Flow<Task?>
+
+    fun deleteTaskById(taskId: Long)
 }
