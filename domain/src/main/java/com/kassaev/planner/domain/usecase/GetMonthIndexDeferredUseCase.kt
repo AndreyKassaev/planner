@@ -7,7 +7,7 @@ interface GetMonthIndexDeferredUseCase {
     operator fun invoke(monthFirstDay: String): Deferred<Int>
 }
 
-class GetMonthIndexDeferredUseCaseImpl(
+internal class GetMonthIndexDeferredUseCaseImpl(
     private val repository: CalendarRepository
 ) : GetMonthIndexDeferredUseCase {
     override fun invoke(monthFirstDay: String) =

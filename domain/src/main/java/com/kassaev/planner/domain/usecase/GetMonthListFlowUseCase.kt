@@ -8,7 +8,7 @@ interface GetMonthListFlowUseCase {
     operator fun invoke(): Flow<List<Month>>
 }
 
-class GetMonthListFlowUseCaseImpl(
+internal class GetMonthListFlowUseCaseImpl(
     private val repository: CalendarRepository
 ) : GetMonthListFlowUseCase {
     override fun invoke() =

@@ -8,7 +8,7 @@ interface GetTaskByIdFlowUseCase {
     operator fun invoke(taskId: Long): Flow<Task>
 }
 
-class GetTaskByIdFlowUseCaseImpl(
+internal class GetTaskByIdFlowUseCaseImpl(
     private val repository: CalendarRepository
 ) : GetTaskByIdFlowUseCase {
     override fun invoke(taskId: Long): Flow<Task> =

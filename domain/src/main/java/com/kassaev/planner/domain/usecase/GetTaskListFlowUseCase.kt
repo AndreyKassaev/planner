@@ -8,7 +8,7 @@ interface GetTaskListFlowUseCase {
     operator fun invoke(dateStart: Long, dateFinish: Long): Flow<List<Task>>
 }
 
-class GetTaskListFlowUseCaseImpl(
+internal class GetTaskListFlowUseCaseImpl(
     private val repository: CalendarRepository
 ) : GetTaskListFlowUseCase {
     override fun invoke(dateStart: Long, dateFinish: Long) =

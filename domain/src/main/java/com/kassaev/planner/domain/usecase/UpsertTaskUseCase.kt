@@ -7,7 +7,7 @@ interface UpsertTaskUseCase {
     operator fun invoke(task: Task)
 }
 
-class UpsertTaskUseCaseImpl(
+internal class UpsertTaskUseCaseImpl(
     private val repository: CalendarRepository
 ) : UpsertTaskUseCase {
     override fun invoke(task: Task) {
