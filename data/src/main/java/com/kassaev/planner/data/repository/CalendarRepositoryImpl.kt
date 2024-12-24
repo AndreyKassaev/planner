@@ -11,6 +11,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.util.Calendar
 import java.util.Locale
@@ -50,10 +51,12 @@ class CalendarRepositoryImpl(
     override suspend fun getMonthRowNumber(monthFirstDay: String): Int =
         monthDao.getMonthRowNumber(monthFirstDay)
 
-    override suspend fun upsertTask(task: TaskDomain) {
-        taskDao.upsertTask(
-            task = TaskMapper.domainModelToEntity(task)
-        )
+    override fun upsertTask(task: TaskDomain) {
+        scope.launch {
+            taskDao.upsertTask(
+                task = TaskMapper.domainModelToEntity(task)
+            )
+        }
     }
 
     override fun getTaskByIdFlow(id: Long): Flow<TaskDomain> =
