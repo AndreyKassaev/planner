@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import com.kassaev.planner.data.AppDatabase
 import com.kassaev.planner.data.dao.MonthDao
+import com.kassaev.planner.data.dao.TaskDao
 import com.kassaev.planner.screen.calendar.CalendarViewModel
 import com.kassaev.planner.screen.task_detail.TaskDetailViewModel
 import org.koin.android.ext.koin.androidApplication
@@ -21,8 +22,11 @@ val appModule = module {
     }
 
     single<MonthDao> {
-        val database = get<AppDatabase>()
-        database.userDao()
+        get<AppDatabase>().monthDao()
+    }
+
+    single<TaskDao> {
+        get<AppDatabase>().taskDao()
     }
 
     viewModelOf(::CalendarViewModel)

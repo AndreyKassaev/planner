@@ -1,6 +1,7 @@
 package com.kassaev.planner.data.repository
 
 import com.kassaev.planner.data.dao.MonthDao
+import com.kassaev.planner.data.dao.TaskDao
 import com.kassaev.planner.data.util.MonthGenerator
 import com.kassaev.planner.data.util.MonthMapper
 import com.kassaev.planner.data.util.TaskMapper
@@ -16,7 +17,8 @@ import java.util.Locale
 import com.kassaev.planner.domain.model.Task as TaskDomain
 
 class CalendarRepositoryImpl(
-    private val monthDao: MonthDao
+    private val monthDao: MonthDao,
+    private val taskDao: TaskDao
 ) : CalendarRepository {
 
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
@@ -39,7 +41,7 @@ class CalendarRepositoryImpl(
     }
 
     override fun getMonthTaskFlow(dateStart: Long, dateFinish: Long): Flow<List<TaskDomain>> =
-        monthDao.getMonthTaskFlow(dateStart = dateStart, dateFinish = dateFinish)
+        taskDao.getMonthTaskFlow(dateStart = dateStart, dateFinish = dateFinish)
             .map { TaskMapper.entityListToDomainModelList(it) }
 
     override fun getMonthListFlow() =
@@ -49,13 +51,13 @@ class CalendarRepositoryImpl(
         monthDao.getMonthRowNumber(monthFirstDay)
 
     override suspend fun upsertTask(task: TaskDomain) {
-        monthDao.upsertTask(
+        taskDao.upsertTask(
             task = TaskMapper.domainModelToEntity(task)
         )
     }
 
     override fun getTaskByIdFlow(id: Long): Flow<TaskDomain> =
-        monthDao.getTaskById(taskId = id).map { TaskMapper.entityToDomainModel(it) }
+        taskDao.getTaskById(taskId = id).map { TaskMapper.entityToDomainModel(it) }
 
     private suspend fun insertMonth(month: Int, year: Int) {
         monthDao.insertAll(
