@@ -19,7 +19,7 @@ import java.util.Calendar
 import java.util.Locale
 import com.kassaev.planner.domain.model.Task as TaskDomain
 
-class CalendarRepositoryImpl(
+internal class CalendarRepositoryImpl(
     private val monthDao: MonthDao,
     private val taskDao: TaskDao
 ) : CalendarRepository {
