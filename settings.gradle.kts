@@ -21,4 +21,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "Planner"
 include(":app")
- 
+include(":data")
+include(":domain")

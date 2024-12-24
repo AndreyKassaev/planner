@@ -2,8 +2,12 @@ package com.kassaev.planner.screen.calendar
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.kassaev.planner.data.repository.CalendarRepository
+import com.kassaev.planner.domain.usecase.GetMonthIndexDeferredUseCase
+import com.kassaev.planner.domain.usecase.GetMonthListFlowUseCase
+import com.kassaev.planner.domain.usecase.GetTaskListFlowUseCase
 import com.kassaev.planner.model.Task
+import com.kassaev.planner.util.MonthMapper
+import com.kassaev.planner.util.TaskMapper
 import com.kassaev.planner.util.formatDateWithoutTime
 import com.kassaev.planner.util.getDayStartFinishTimestampPair
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -11,12 +15,15 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.Calendar
 
 class CalendarViewModel(
-    private val calendarRepository: CalendarRepository
+    private val getMonthListFlowUseCase: GetMonthListFlowUseCase,
+    private val getMonthIndexDeferredUseCase: GetMonthIndexDeferredUseCase,
+    private val getTaskListFlowUseCase: GetTaskListFlowUseCase
 ) : ViewModel() {
 
     private val pagerStateCurrentPageFlowMutable = MutableStateFlow(0)
@@ -70,7 +77,8 @@ class CalendarViewModel(
 
     fun getCurrentMonthIndexFlow() = currentMonthIndexFlow
 
-    fun getMonthListFlow() = calendarRepository.getMonthListFlow()
+    fun getMonthListFlow() =
+        getMonthListFlowUseCase().map { MonthMapper.domainModelListToUiModelList(it) }
 
     private fun setCurrentMonthIndex() {
         val calendar = Calendar.getInstance()
@@ -78,7 +86,8 @@ class CalendarViewModel(
         val currentMonthFirstDay = formatDateWithoutTime(calendar.time)
         viewModelScope.launch {
             val monthRowNumber =
-                calendarRepository.getMonthRowNumber(monthFirstDay = currentMonthFirstDay)
+                getMonthIndexDeferredUseCase(monthFirstDay = currentMonthFirstDay)
+                    .await()
             currentMonthIndexFlowMutable.update {
                 if (monthRowNumber != 0) monthRowNumber - 1 else 0
             }
@@ -92,12 +101,12 @@ class CalendarViewModel(
                 val dayStartFinishTimestampPair =
                     getDayStartFinishTimestampPair(dateString = selectedDate)
                 if (dayStartFinishTimestampPair != null) {
-                    calendarRepository.getMonthTaskFlow(
+                    getTaskListFlowUseCase(
                         dateStart = dayStartFinishTimestampPair.first,
                         dateFinish = dayStartFinishTimestampPair.second
                     ).collectLatest { selectedDayTaskList ->
                         taskListFlowMutable.update {
-                            selectedDayTaskList
+                            TaskMapper.domainModelListToUiModelList(selectedDayTaskList)
                         }
                     }
                 }
@@ -111,12 +120,12 @@ class CalendarViewModel(
                     getDayStartFinishTimestampPair(currentMonthDateList.last())?.second
 
                 if (monthStartTimestamp != null && monthFinishTimestamp != null) {
-                    calendarRepository.getMonthTaskFlow(
+                    getTaskListFlowUseCase(
                         dateStart = monthStartTimestamp,
                         dateFinish = monthFinishTimestamp
                     ).collectLatest { wholeMonthTaskList ->
                         taskListFlowMutable.update {
-                            wholeMonthTaskList
+                            TaskMapper.domainModelListToUiModelList(wholeMonthTaskList)
                         }
                     }
                 }

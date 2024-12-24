@@ -4,9 +4,11 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
-import com.kassaev.planner.data.repository.CalendarRepository
+import com.kassaev.planner.domain.usecase.GetTaskByIdFlowUseCase
+import com.kassaev.planner.domain.usecase.UpsertTaskUseCase
 import com.kassaev.planner.model.Task
 import com.kassaev.planner.navigation.TaskDetail
+import com.kassaev.planner.util.TaskMapper
 import com.kassaev.planner.util.dateStringToDate
 import com.kassaev.planner.util.getMockTask
 import com.kassaev.planner.util.hourMinutePairToTimestamp
@@ -20,7 +22,8 @@ import java.util.Calendar
 
 class TaskDetailViewModel(
     private val savedStateHandle: SavedStateHandle,
-    private val calendarRepository: CalendarRepository
+    private val getTaskByIdFlowUseCase: GetTaskByIdFlowUseCase,
+    private val upsertTaskUseCase: UpsertTaskUseCase
 ) : ViewModel() {
 
     private val taskFlowMutable = MutableStateFlow(getMockTask())
@@ -30,9 +33,9 @@ class TaskDetailViewModel(
         viewModelScope.launch {
             val taskDetail = savedStateHandle.toRoute<TaskDetail>()
             taskDetail.taskId?.let { taskId ->
-                calendarRepository.getTaskByIdFlow(id = taskId).collectLatest { task ->
+                getTaskByIdFlowUseCase(taskId = taskId).collectLatest { task ->
                     taskFlowMutable.update {
-                        task
+                        TaskMapper.domainModelToUiModel(task)
                     }
                 }
             }
@@ -73,7 +76,9 @@ class TaskDetailViewModel(
     fun saveTask() {
         viewModelScope.launch {
             taskFlow.collectLatest { task ->
-                calendarRepository.upsertTask(task)
+                upsertTaskUseCase(
+                    task = TaskMapper.uiModelToDomainModel(task)
+                )
             }
         }
     }
